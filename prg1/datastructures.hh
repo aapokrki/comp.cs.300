@@ -181,15 +181,15 @@ public:
 
 private:
     // Add stuff needed for your class implementation here
-    TownID id_;
-    Name name_;
-    Coord coord_;
-    int tax_;
+    TownID id_ = "";
+    Name name_ = "";
+    Coord coord_ = {};
+    int tax_ = 0;
 
-    std::vector <TownID> town_vassals;
+    std::vector <TownID> town_vassals = {};
 
-    std::vector <TownID> towns_by_id;
-    std::map<TownID,Datastructures> towns_by_ds;
+    std::vector <TownID> towns_by_id = {};
+    std::map<TownID,Datastructures*> towns_by_ds = {};
 
 };
 
