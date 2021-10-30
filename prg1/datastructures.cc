@@ -1,14 +1,16 @@
 // Datastructures.cc
 //
-// Student name:
-// Student email:
-// Student number:
+// Student name: Aapo Kärki
+// Student email: aapo.karki@tuni.fi
+// Student number: H292001
 
 #include "datastructures.hh"
 
 #include <random>
 
 #include <cmath>
+
+#include <QDebug>
 
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
 
@@ -30,7 +32,7 @@ Type random_in_range(Type start, Type end)
 
 Datastructures::Datastructures()
 {
-    // Write any initialization you need here
+
 }
 
 Datastructures::~Datastructures()
@@ -41,7 +43,7 @@ Datastructures::~Datastructures()
 unsigned int Datastructures::town_count()
 {
     // Replace the line below with your implementation
-    throw NotImplemented("town_count()");
+    return towns_by_id.size();
 }
 
 void Datastructures::clear_all()
@@ -50,38 +52,51 @@ void Datastructures::clear_all()
     throw NotImplemented("clear_all()");
 }
 
-bool Datastructures::add_town(TownID /*id*/, const Name &/*name*/, Coord /*coord*/, int /*tax*/)
+bool Datastructures::add_town(TownID id, const Name& name, Coord coord, int tax)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("add_town()");
+    bool result = false;
+    if (std::find(towns_by_id.begin(), towns_by_id.end(), id) == towns_by_id.end()){
+        Datastructures *town = new Datastructures;
+        town->id_ = id;
+        town->name_ = name;
+        town->coord_ = coord;
+        town->tax_ = tax;
+
+        towns_by_id.push_back(town->id_);
+        towns_by_ds[id] = *town;
+        result = true;
+    }
+    return result;
+
 }
 
-Name Datastructures::get_town_name(TownID /*id*/)
+Name Datastructures::get_town_name(TownID id)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("get_town_name()");
+    return towns_by_ds.at(id).name_;
 }
 
-Coord Datastructures::get_town_coordinates(TownID /*id*/)
+Coord Datastructures::get_town_coordinates(TownID id)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("get_town_coordinates()");
+    return towns_by_ds.at(id).coord_;
 }
 
-int Datastructures::get_town_tax(TownID /*id*/)
+int Datastructures::get_town_tax(TownID id)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("get_town_tax()");
+    return towns_by_ds.at(id).tax_;
 }
 
 std::vector<TownID> Datastructures::all_towns()
 {
     // Replace the line below with your implementation
-    throw NotImplemented("all_towns()");
+    return towns_by_id;
 }
 
 std::vector<TownID> Datastructures::find_towns(const Name &/*name*/)

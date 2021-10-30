@@ -1,8 +1,8 @@
 // Datastructures.hh
 //
-// Student name:
-// Student email:
-// Student number:
+// Student name: Aapo Kärki
+// Student email: aapo.karki@tuni.fi
+// Student number: H292001
 
 #ifndef DATASTRUCTURES_HH
 #define DATASTRUCTURES_HH
@@ -14,6 +14,8 @@
 #include <limits>
 #include <functional>
 #include <exception>
+
+#include <map>
 
 // Types for IDs
 using TownID = std::string;
@@ -179,6 +181,15 @@ public:
 
 private:
     // Add stuff needed for your class implementation here
+    TownID id_;
+    Name name_;
+    Coord coord_;
+    int tax_;
+
+    std::vector <TownID> town_vassals;
+
+    std::vector <TownID> towns_by_id;
+    std::map<TownID,Datastructures> towns_by_ds;
 
 };
 
