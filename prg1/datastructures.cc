@@ -57,6 +57,9 @@ void Datastructures::clear_all()
         }
         towns_by_id = {};
         towns_by_ds = {};
+
+        qDebug() << towns_by_id.size();
+        qDebug() << towns_by_ds.size();
     }
 
 
@@ -65,17 +68,18 @@ void Datastructures::clear_all()
 bool Datastructures::add_town(TownID id, const Name& name, Coord coord, int tax)
 {
     // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
+
     bool result = false;
-    if (std::find(towns_by_id.begin(), towns_by_id.end(), id) == towns_by_id.end()){
+    if (!towns_by_ds.count(id)){ // O(log(n))
         Datastructures *town = new Datastructures;
         town->id_ = id;
         town->name_ = name;
         town->coord_ = coord;
         town->tax_ = tax;
 
-        towns_by_id.push_back(town->id_);
-        towns_by_ds[id] = town;
+        towns_by_ds[id] = town; // O(log(n))
+        towns_by_id.push_back(town->id_); // O(1)
+        towns_by_ds_vec.push_back(town);  // O(1)
         result = true;
     }
     return result;
@@ -86,47 +90,69 @@ Name Datastructures::get_town_name(TownID id)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    return towns_by_ds.at(id)->name_;
+    return towns_by_ds.at(id)->name_; // O(log(n))
 }
 
 Coord Datastructures::get_town_coordinates(TownID id)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    return towns_by_ds.at(id)->coord_;
+    return towns_by_ds.at(id)->coord_; // O(log(n))
 }
 
 int Datastructures::get_town_tax(TownID id)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    return towns_by_ds.at(id)->tax_;
+    return towns_by_ds.at(id)->tax_; // O(log(n))
 }
 
 std::vector<TownID> Datastructures::all_towns()
 {
     // Replace the line below with your implementation
-    return towns_by_id;
+    return towns_by_id; // O(1)
 }
 
-std::vector<TownID> Datastructures::find_towns(const Name &/*name*/)
+std::vector<TownID> Datastructures::find_towns(const Name &name)
 {
     // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("find_towns()");
+    std::vector<TownID> towns_same_name = {};
+
+    for (auto& town : towns_by_ds){ // O(N)
+        if (town.second->name_ == name){
+            towns_same_name.push_back(town.first); // O(1)
+        }
+    }
+    return towns_same_name;
+
 }
 
-bool Datastructures::change_town_name(TownID /*id*/, const Name &/*newname*/)
+bool Datastructures::change_town_name(TownID id, const Name &newname)
 {
     // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("change_town_name()");
+    bool result = false;
+    if (towns_by_ds.count(id)){ // O(log(n)) // 1 if id in map, 0 if not
+        towns_by_ds.at(id)->name_ = newname; // O(log(n))
+
+        result = true;
+    }
+    return result;
 }
 
 std::vector<TownID> Datastructures::towns_alphabetically()
 {
+    std::vector<TownID> towns_alpha = {};
+
     // Replace the line below with your implementation
-    throw NotImplemented("towns_alphabetically()");
+
+    std::sort(towns_by_ds_vec.begin(), towns_by_ds_vec.end(), [](Datastructures* l, Datastructures* r){ // O(n log(n))
+        return l->name_ < r->name_;
+    });
+
+    for (auto town : towns_by_ds_vec){ // O(n))
+        towns_alpha.push_back(town->id_); // O(1)
+    }
+    return towns_alpha;
 }
 
 std::vector<TownID> Datastructures::towns_distance_increasing()

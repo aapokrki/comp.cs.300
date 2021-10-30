@@ -109,31 +109,32 @@ public:
     // Short rationale for estimate:
     bool add_town(TownID id, Name const& name, Coord coord, int tax);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Output is searched from a map with a key value "id". Therefore O(log(n))
     Name get_town_name(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Output is searched from a map with a key value "id". Therefore O(log(n))
     Coord get_town_coordinates(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(n))
+    // Short rationale for estimate: Output is searched from a map with a key value "id". Therefore O(log(n))
     int get_town_tax(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: Returns instantly the made vector in private
     std::vector<TownID> all_towns();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: For loop goes through the whole map.
+    //                               So it depends linearry on the amount of elements
     std::vector<TownID> find_towns(Name const& name);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: 2* O(log(n)) => O(log(n))
+    // Short rationale for estimate: cplusplus.com std::map::count and ::at
     bool change_town_name(TownID id, Name const& newname);
 
-    // Estimate of performance:
+    // Estimate of performance: O(nlog(n))
     // Short rationale for estimate:
     std::vector<TownID> towns_alphabetically();
 
@@ -185,10 +186,11 @@ private:
     Name name_ = "";
     Coord coord_ = {};
     int tax_ = 0;
-
     std::vector <TownID> town_vassals = {};
 
     std::vector <TownID> towns_by_id = {};
+    std::vector <Datastructures*> towns_by_ds_vec = {};
+
     std::map<TownID,Datastructures*> towns_by_ds = {};
 
 };
