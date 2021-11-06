@@ -214,18 +214,186 @@ TownID Datastructures::max_distance()
     return result->id_;
 }
 
-bool Datastructures::add_vassalship(TownID /*vassalid*/, TownID /*masterid*/)
-{
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("add_vassalship()");
+
+
+// vero loop mahdollista
+//bool Datastructures::add_vassalship(TownID vassalid, TownID masterid)
+//{
+//    // Replace the line below with your implementation
+//    // Also uncomment parameters ( /* param */ -> param )
+//    if(valid(vassalid, masterid)){ // O(2*n)
+
+//        // create a vassal connection between master and vassal
+//        towns_by_ds.at(masterid)->town_vassals.push_back(vassalid); // O(n) Ø(1)
+
+//        // add both ids to the vassal_connections database
+//        vassal_connections[masterid] = towns_by_ds.at(masterid);
+//        vassal_connections[vassalid] = towns_by_ds.at(vassalid);
+
+//        // flags true, so that no new master can be added to this vassal
+//        towns_by_ds.at(vassalid)->has_master = true;
+//        return true;
+//    }else{
+//        return false;
+//    }
+//}
+
+//    auto vassal_result = std::find_if(towns_by_ds_vec.begin(),towns_by_ds_vec.end(), [vassalid](Datastructures* i){
+//        return i->id_ == vassalid;
+//    });
+
+//    if (vassal_result != std::end(towns_by_ds_vec)){
+//        auto master_result = std::find_if(towns_by_ds_vec.begin(),towns_by_ds_vec.end(), [masterid](Datastructures* i){
+//            return i->id_ == masterid;
+//        });
+//        if (master_result != std::end(towns_by_ds_vec)){
+
+//            if (!towns_by_ds.at(vassalid)->has_master){
+//                // If all ofthe previous if statements are true: returns true
+//                return true;
+//            }
+//        }
+//    }
+//    // If one of these isn't true: returns false
+//    return false;
+
+bool Datastructures::i_am_master(Vassal* vassalid, Vassal* masterid){
+
+    // aloitetaan masterista ja käydään sen masterit läpi
+    qDebug() << "i_am_master";
+
+    qDebug() << "1";
+
+    // Loop on päässyt puun juureen, jolloin vassalid ei kuulu masterid:n johonkin osaan
+    if (masterid == nullptr){
+        return false;
+    }
+    else if (masterid != vassalid){
+        qDebug() << "2";
+
+        return i_am_master(vassalid, masterid->master);
+        qDebug() << "3";
+
+    }
+
+    // else if (masterid == vassalid)
+    return true;
+
 }
 
-std::vector<TownID> Datastructures::get_town_vassals(TownID /*id*/)
+bool Datastructures::valid(TownID vassalid, TownID masterid){
+
+    // If vassalid exists
+
+    auto vassal_result = std::find_if(towns_by_ds_vec.begin(),towns_by_ds_vec.end(), [vassalid](Datastructures* i){
+            return i->id_ == vassalid;
+        });
+
+        if (vassal_result != std::end(towns_by_ds_vec)){
+
+            // If masterid exists
+            auto master_result = std::find_if(towns_by_ds_vec.begin(),towns_by_ds_vec.end(), [masterid](Datastructures* i){
+                return i->id_ == masterid;
+            });
+
+            if (master_result != std::end(towns_by_ds_vec)){
+
+                // Checks if vassalid already pays taxes or not. 0 if yes: 1 if no
+                if(towns_by_ds.at(vassalid)->has_master == false){
+
+
+                    // Jos bb on jossain kohtaa cc:n master
+                  return true;
+
+                }
+            }
+        }
+    //If one of these isn't true: returns false
+
+    qDebug() << "False return";
+    return false;
+}
+// Vassalissa ja datastructurissa samoja tietoja, joita molempia täytyy tyhjentää ja täyttää
+// korjaa tämä vain yhteen. Vassaliin tai datasteructuriin
+bool Datastructures::add_vassalship(TownID vassalid, TownID masterid){
+
+    if(valid(vassalid, masterid)){
+
+        std::vector<Vassal*> town_vassals = {};
+
+        // Master already exists in database (has vassals)
+        if(vassal_connections.find(masterid) != vassal_connections.end() and
+                vassal_connections.find(vassalid) != vassal_connections.end()){
+
+              qDebug() << "molemmat löytyy";
+
+            if(i_am_master(vassal_connections.at(vassalid), vassal_connections.at(masterid))){
+                qDebug() << "Kierto estetty";
+                return false;
+
+            }else{
+                qDebug() << "Molemmat löytyy, ei kiertoa";
+                vassal_connections.at(masterid)->town_vassals.push_back(vassal_connections.at(vassalid));
+                qDebug() << "1";
+                vassal_connections.at(vassalid)->master = vassal_connections.at(masterid);
+                qDebug() << "2";
+                towns_by_ds.at(vassalid)->has_master = true;
+                qDebug() << "3";
+                towns_by_ds.at(masterid)->town_vassalid_vec.push_back(vassalid);
+                return true;
+            }
+
+
+        }else if(vassal_connections.find(masterid) != vassal_connections.end()){
+
+            qDebug() << "Master löytyy";
+            Vassal *new_vassal = new Vassal{towns_by_ds.at(vassalid), town_vassals, vassal_connections.at(masterid)};
+
+            vassal_connections.at(masterid)->town_vassals.push_back(new_vassal);
+            towns_by_ds.at(vassalid)->has_master = true;
+            towns_by_ds.at(masterid)->town_vassalid_vec.push_back(vassalid);
+            vassal_connections[vassalid] = new_vassal ;
+
+        }else if(vassal_connections.find(vassalid) != vassal_connections.end()){
+
+            qDebug() << "Vassal löytyy";
+            Vassal *new_master = new Vassal{towns_by_ds.at(masterid), town_vassals, nullptr};
+
+            new_master->town_vassals.push_back(vassal_connections.at(vassalid));
+            towns_by_ds.at(vassalid)->has_master = true;
+            towns_by_ds.at(masterid)->town_vassalid_vec.push_back(vassalid);
+            vassal_connections[masterid] = new_master ;
+
+            vassal_connections.at(vassalid)->master = new_master;
+
+        }
+        else{ // Master doesn't exist in database (doesn't have vassals)
+            qDebug() << "Masteria tai vassalia ei löydy";
+            Vassal *new_master = new Vassal{towns_by_ds.at(masterid), town_vassals, nullptr};
+            Vassal *new_vassal = new Vassal{towns_by_ds.at(vassalid), town_vassals, new_master};
+
+            new_master->town_vassals.push_back(new_vassal);
+            towns_by_ds.at(vassalid)->has_master = true;
+
+            // get_town_vassal gets called a lot, so this is faster
+            towns_by_ds.at(masterid)->town_vassalid_vec.push_back(vassalid);
+
+            vassal_connections[masterid] = new_master ;
+            vassal_connections[vassalid] = new_vassal ;
+        }
+
+
+        return true;
+    }
+
+    return false;
+}
+
+std::vector<TownID> Datastructures::get_town_vassals(TownID id)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("get_town_vassals()");
+    return towns_by_ds.at(id)->town_vassalid_vec;
 }
 
 std::vector<TownID> Datastructures::taxer_path(TownID /*id*/)
