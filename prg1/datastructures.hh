@@ -131,15 +131,15 @@ public:
     //                               So it depends linearry on the amount of elements
     std::vector<TownID> find_towns(Name const& name);
 
-    // Estimate of performance: 2* O(log(n)) => O(log(n))
-    // Short rationale for estimate: cplusplus.com std::map::count and ::at
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Most likely constant. Extremely rare worst case O(N^2)
     bool change_town_name(TownID id, Name const& newname);
 
-    // Estimate of performance: O(nlog(n))
+    // Estimate of performance: O(n log(n)) + O(n)
     // Short rationale for estimate:
     std::vector<TownID> towns_alphabetically();
 
-    // Estimate of performance:
+    // Estimate of performance: O(n log(n)) + O(n)
     // Short rationale for estimate:
     std::vector<TownID> towns_distance_increasing();
 
@@ -192,7 +192,6 @@ private:
 
     std::vector <TownID> town_vassals = {};
 
-    std::vector <TownID> towns_by_id = {};
     std::vector <Datastructures*> towns_by_ds_vec = {};
 
     std::unordered_map<TownID,Datastructures*> towns_by_ds = {};

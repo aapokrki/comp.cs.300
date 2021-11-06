@@ -43,7 +43,7 @@ Datastructures::~Datastructures()
 unsigned int Datastructures::town_count()
 {
     // Replace the line below with your implementation
-    return towns_by_id.size();
+    return towns_by_ds_vec.size();
 }
 
 void Datastructures::clear_all()
@@ -55,14 +55,11 @@ void Datastructures::clear_all()
             delete town.second;
 
         }
-        towns_by_id = {};
+        towns_by_ds_vec = {};
         towns_by_ds = {};
 
-        qDebug() << towns_by_id.size();
         qDebug() << towns_by_ds.size();
     }
-
-
 }
 
 bool Datastructures::add_town(TownID id, const Name& name, Coord coord, int tax)
@@ -80,7 +77,7 @@ bool Datastructures::add_town(TownID id, const Name& name, Coord coord, int tax)
         town->tax_ = tax;
 
         towns_by_ds[id] = town; // O(log(n))
-        towns_by_id.push_back(town->id_); // O(1)
+
         towns_by_ds_vec.push_back(town);  // O(1)
         result = true;
     }
@@ -112,7 +109,11 @@ int Datastructures::get_town_tax(TownID id)
 std::vector<TownID> Datastructures::all_towns()
 {
     // Replace the line below with your implementation
-    return towns_by_id; // O(1)
+    std::vector<TownID> all_towns_id = {};
+    for(auto town : towns_by_ds_vec){
+        all_towns_id.push_back(town->id_);
+    }
+    return all_towns_id;
 }
 
 std::vector<TownID> Datastructures::find_towns(const Name &name)
@@ -133,14 +134,15 @@ bool Datastructures::change_town_name(TownID id, const Name &newname)
 {
     // Replace the line below with your implementation
     bool result = false;
-
-    // 1 if id in map, 0 if not
-    if (towns_by_ds.find(id) != towns_by_ds.end()){ // O(N) Ø(1)
-        towns_by_ds.at(id)->name_ = newname; // O(N) Ø(1)
-
-        result = true;
+    for (Datastructures *town : towns_by_ds_vec){ // O(n) Ω(1)
+        if (town->id_ == id){ // O(1)
+            town->name_ = newname; // O(1)
+            result = true;
+            break;
+        }
     }
     return result;
+
 }
 
 std::vector<TownID> Datastructures::towns_alphabetically()
@@ -177,6 +179,7 @@ std::vector<TownID> Datastructures::towns_distance_increasing()
     for (auto town : towns_by_ds_vec){ // O(n))
         towns_coord.push_back(town->id_); // O(1)
     }
+
     return towns_coord;
 }
 
@@ -184,13 +187,31 @@ std::vector<TownID> Datastructures::towns_distance_increasing()
 TownID Datastructures::min_distance()
 {
     // Replace the line below with your implementation
-    throw NotImplemented("min_distance()");
+
+    if(towns_by_ds_vec.size() == 0){return NO_TOWNID;}
+
+
+    Datastructures* result = *std::min_element(towns_by_ds_vec.begin(),towns_by_ds_vec.end(),
+                                               [](Datastructures* l, Datastructures* r){ // O(n)
+        return l->dist_ < r->dist_;
+    });
+
+    return result->id_;
+
 }
 
 TownID Datastructures::max_distance()
 {
     // Replace the line below with your implementation
-    throw NotImplemented("max_distance()");
+
+     if(towns_by_ds_vec.size() == 0){return NO_TOWNID;}
+
+    Datastructures* result = *std::max_element(towns_by_ds_vec.begin(),towns_by_ds_vec.end(),
+                                               [](Datastructures* l, Datastructures* r){ // O(n)
+        return l->dist_ < r->dist_;
+    });
+
+    return result->id_;
 }
 
 bool Datastructures::add_vassalship(TownID /*vassalid*/, TownID /*masterid*/)
