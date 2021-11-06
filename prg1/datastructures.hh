@@ -15,6 +15,7 @@
 #include <functional>
 #include <exception>
 
+
 #include <map>
 
 // Types for IDs
@@ -109,16 +110,16 @@ public:
     // Short rationale for estimate:
     bool add_town(TownID id, Name const& name, Coord coord, int tax);
 
-    // Estimate of performance: O(log(n))
-    // Short rationale for estimate: Output is searched from a map with a key value "id". Therefore O(log(n))
+    // Estimate of performance: O(N) Ø(1)
+    // Short rationale for estimate: Output is searched from an unordered_map with a key value "id". Therefore O(N) Ø(1)
     Name get_town_name(TownID id);
 
-    // Estimate of performance: O(log(n))
-    // Short rationale for estimate: Output is searched from a map with a key value "id". Therefore O(log(n))
+    // Estimate of performance: O(N) Ø(1)
+    // Short rationale for estimate: Output is searched from an unordered_map with a key value "id". Therefore O(N) Ø(1)
     Coord get_town_coordinates(TownID id);
 
-    // Estimate of performance: O(log(n))
-    // Short rationale for estimate: Output is searched from a map with a key value "id". Therefore O(log(n))
+    // Estimate of performance: O(N) Ø(1)
+    // Short rationale for estimate: Output is searched from an unordered_map with a key value "id". Therefore O(N) Ø(1)
     int get_town_tax(TownID id);
 
     // Estimate of performance: O(1)
@@ -185,13 +186,16 @@ private:
     TownID id_ = "";
     Name name_ = "";
     Coord coord_ = {};
-    int tax_ = 0;
+    unsigned int tax_ = 0;
+
+    Distance dist_ = 0;
+
     std::vector <TownID> town_vassals = {};
 
     std::vector <TownID> towns_by_id = {};
     std::vector <Datastructures*> towns_by_ds_vec = {};
 
-    std::map<TownID,Datastructures*> towns_by_ds = {};
+    std::unordered_map<TownID,Datastructures*> towns_by_ds = {};
 
 };
 
