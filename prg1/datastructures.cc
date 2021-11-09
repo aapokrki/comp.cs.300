@@ -37,7 +37,7 @@ Datastructures::Datastructures()
 
 Datastructures::~Datastructures()
 {
-    // Write any cleanup you need here
+
 }
 
 unsigned int Datastructures::town_count()
@@ -211,14 +211,18 @@ TownID Datastructures::max_distance()
 bool Datastructures::id_exists(TownID id){
 
     if (!towns_by_ds.empty()){
+        qDebug() << "!!!";
 
         if (std::find_if(towns_by_ds.begin(), towns_by_ds.end(), [id](std::pair<TownID, Town*> i){
+                         qDebug() << "find_if";
+
                       return i.second->id_ == id; }) != towns_by_ds.end()){
-            qDebug() << "id löytyy";
+            qDebug() << "jälkee";
 
-
+            return true;
         }
     }
+    qDebug() << "tääl sen pitäis olla";
 
     return false;
 }
@@ -252,6 +256,7 @@ bool Datastructures::add_vassalship(TownID vassalid, TownID masterid){
 
     // Connect vassals and masters
     if(id_exists(vassalid) and id_exists(masterid)){
+
         if(mastercheck(towns_by_ds.at(vassalid), towns_by_ds.at(masterid))){
             towns_by_ds.at(vassalid)->master = towns_by_ds.at(masterid);
             towns_by_ds.at(masterid)->vassals.push_back(towns_by_ds.at(vassalid));
@@ -261,40 +266,66 @@ bool Datastructures::add_vassalship(TownID vassalid, TownID masterid){
     }
 
     return false;
-
-
 }
 
 std::vector<TownID> Datastructures::get_town_vassals(TownID id)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    return towns_by_ds.at(id)->vassals_vec;
+    if(id_exists(id)){
+        return towns_by_ds.at(id)->vassals_vec;
+
+    }
+
+    return {NO_TOWNID};
+
 }
 
-std::vector<TownID> Datastructures::get_masters(Town* id){
 
-    std::vector<TownID> taxer_path_vec = {};
+std::vector<TownID> Datastructures::get_masters(Town* town, std::vector<TownID> taxer_path_vec){
 
-    return taxer_path_vec;
+    if(town->master == nullptr){
+        taxer_path_vec.push_back(town->id_);
+        return taxer_path_vec;
+    }
+
+    taxer_path_vec.push_back(town->id_);
+    return get_masters(town->master,taxer_path_vec);
+
 }
 
 std::vector<TownID> Datastructures::taxer_path(TownID id)
 {
     // Replace the line below with your implementation
-
+    std::vector<TownID> taxer_path_vec = {};
 
     if (towns_by_ds.at(id)->master == nullptr){
         return {NO_TOWNID};
     }
-    return get_masters(towns_by_ds.at(id));
+    return get_masters(towns_by_ds.at(id), taxer_path_vec);
 }
 
-bool Datastructures::remove_town(TownID /*id*/)
+bool Datastructures::remove_town(TownID id)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("remove_town()");
+//    if (id_exists(id)){
+//        delete towns_by_ds.at(id);
+//        return true;
+//    }
+//    return false;
+    if (id_exists(id)){
+        qDebug() << "!!!";
+        towns_by_ds_vec.erase(std::remove(towns_by_ds_vec.begin(),
+                                          towns_by_ds_vec.end(), towns_by_ds.at(id)), towns_by_ds_vec.end());
+        delete towns_by_ds.at(id);
+
+        towns_by_ds.erase(id);
+
+        return true;
+    }else{
+        return false;
+    }
 }
 
 std::vector<TownID> Datastructures::towns_nearest(Coord /*coord*/)

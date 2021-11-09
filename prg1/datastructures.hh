@@ -193,14 +193,11 @@ public:
         std::vector<TownID> vassals_vec;
     };
 
-
-
-    // Vassal tree structure
-
     bool id_exists(TownID id);
 
     bool mastercheck(Town* vassal, Town* master);
-    std::vector<TownID> get_masters(Town* id);
+    std::vector<TownID> get_masters(Town* town, std::vector<TownID> taxer_path_vec);
+
 private:
 
 
