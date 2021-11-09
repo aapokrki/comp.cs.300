@@ -181,39 +181,35 @@ public:
     // Short rationale for estimate:
     int total_net_tax(TownID id);
 
+    struct Town{
+        TownID id_ = "";
+        Name name_ = "";
+        Coord coord_ = {};
+        int tax_ = 0;
+        Distance dist_ = 0;
 
-
-
-    bool valid(TownID vassalid, TownID masterid);
-
-    // Vassal tree structure
-    struct Vassal{
-
-        Datastructures* town;
-        std::vector <Vassal*> town_vassals;
-
-        Vassal* master;
-
+        Town* master = nullptr;
+        std::vector<Town*> vassals;
+        std::vector<TownID> vassals_vec;
     };
 
-    std::unordered_map<TownID,Vassal*> vassal_connections = {};
 
-    bool i_am_master(Vassal* vassalid, Vassal* masterid);
+
+    // Vassal tree structure
+
+    bool id_exists(TownID id);
+
+    bool mastercheck(Town* vassal, Town* master);
+    std::vector<TownID> get_masters(Town* id);
 private:
+
+
     // Add stuff needed for your class implementation here
-    TownID id_ = "";
-    Name name_ = "";
-    Coord coord_ = {};
-    unsigned int tax_ = 0;
-    Distance dist_ = 0;
 
-    bool has_master = false;
 
-    std::vector<TownID> town_vassalid_vec;
+    std::vector <Town*> towns_by_ds_vec = {};
 
-    std::vector <Datastructures*> towns_by_ds_vec = {};
-
-    std::unordered_map<TownID,Datastructures*> towns_by_ds = {};
+    std::unordered_map<TownID,Town*> towns_by_ds = {};
 
 
 
