@@ -181,6 +181,8 @@ public:
     // Short rationale for estimate:
     int total_net_tax(TownID id);
 
+
+private:
     struct Town{
         TownID id_ = "";
         Name name_ = "";
@@ -198,8 +200,8 @@ public:
     bool mastercheck(Town* vassal, Town* master);
     std::vector<TownID> get_masters(Town* town, std::vector<TownID> taxer_path_vec);
 
-private:
-
+    void change_master(Town *town);
+    int find_distance(Coord c1, Coord c2);
 
     // Add stuff needed for your class implementation here
 

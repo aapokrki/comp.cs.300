@@ -306,13 +306,10 @@ MainProgram::CmdResult MainProgram::cmd_remove_town(ostream& output, MatchIter b
     string id = *begin++;
     assert( begin == end && "Impossible number of parameters!");
 
-//    auto name = ds_.get_town_name(id);
-    // siirrettiin if:n sisälle, niin jos id:tä ei ole, ei tule erroria get_townin kanssa.
+    auto name = ds_.get_town_name(id);
     bool success = ds_.remove_town(id);
     if (success)
-
     {
-        auto name = ds_.get_town_name(id);
 
         output << name << " removed." << endl;
         view_dirty = true;
