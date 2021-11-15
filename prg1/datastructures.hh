@@ -188,7 +188,6 @@ private:
         Name name_ = "";
         Coord coord_ = {};
         int tax_ = 0;
-        Distance dist_ = 0;
 
         Town* master = nullptr;
         std::vector<Town*> vassals;
@@ -198,10 +197,10 @@ private:
     bool id_exists(TownID id);
 
     bool mastercheck(Town* vassal, Town* master);
-    std::vector<TownID> get_masters(Town* town, std::vector<TownID> taxer_path_vec);
+    std::vector<TownID> get_masters(Town* town, std::vector<TownID> vec);
 
     void change_master(Town *town);
-    int find_distance(Coord c1, Coord c2);
+    int find_distance(TownID id, Coord c2);
 
     // Add stuff needed for your class implementation here
 

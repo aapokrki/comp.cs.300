@@ -69,7 +69,7 @@ bool Datastructures::add_town(TownID id, const Name& name, Coord coord, int tax)
 
     bool result = false;
     if (!towns_by_ds.count(id)){ // O(log(n))
-        Town *town = new Town{id, name, coord, tax, find_distance(coord, {0,0}),{},{},{}};
+        Town *town = new Town{id, name, coord, tax,{},{},{}};
 
         towns_by_ds[id] = town; // O(log(n))
 
@@ -166,8 +166,8 @@ std::vector<TownID> Datastructures::towns_distance_increasing()
     // Replace the line below with your implementation
 
     std::sort(towns_by_ds_vec.begin(), towns_by_ds_vec.end(),
-              [](Town* l, Town* r){ // O(n log(n))
-        return l->dist_ < r->dist_;
+              [this](Town* l, Town* r){ // O(n log(n))
+        return find_distance(l->id_, {0,0}) < find_distance(r->id_, {0,0});
 
     });
 
@@ -187,8 +187,8 @@ TownID Datastructures::min_distance()
 
 
     Town* result = *std::min_element(towns_by_ds_vec.begin(),towns_by_ds_vec.end(),
-                                               [](Town* l, Town* r){ // O(n)
-        return l->dist_ < r->dist_;
+                                               [this](Town* l, Town* r){ // O(n)
+            return find_distance(l->id_, {0,0}) < find_distance(r->id_, {0,0});
     });
 
     return result->id_;
@@ -202,8 +202,8 @@ TownID Datastructures::max_distance()
      if(towns_by_ds_vec.size() == 0){return NO_TOWNID;}
 
     Town* result = *std::max_element(towns_by_ds_vec.begin(),towns_by_ds_vec.end(),
-                                               [](Town* l, Town* r){ // O(n)
-        return l->dist_ < r->dist_;
+                                               [this](Town* l, Town* r){ // O(n)
+            return find_distance(l->id_, {0,0}) < find_distance(r->id_, {0,0});
     });
 
     return result->id_;
@@ -279,15 +279,15 @@ std::vector<TownID> Datastructures::get_town_vassals(TownID id)
 }
 
 
-std::vector<TownID> Datastructures::get_masters(Town* town, std::vector<TownID> taxer_path_vec){
+std::vector<TownID> Datastructures::get_masters(Town* town, std::vector<TownID> vec){
 
     if(town->master == nullptr){
-        taxer_path_vec.push_back(town->id_);
-        return taxer_path_vec;
+        vec.push_back(town->id_);
+        return vec;
     }
 
-    taxer_path_vec.push_back(town->id_);
-    return get_masters(town->master,taxer_path_vec);
+    vec.push_back(town->id_);
+    return get_masters(town->master,vec);
 
 }
 
@@ -344,34 +344,45 @@ bool Datastructures::remove_town(TownID id)
     }
 }
 
-int Datastructures::find_distance(Coord c1, Coord c2){
+int Datastructures::find_distance(TownID id, Coord c2){
 
-    int dist = sqrt(pow((c1.x-c2.x),2)+pow((c1.y-c2.y),2));
+    int x = towns_by_ds.at(id)->coord_.x;
+    int y = towns_by_ds.at(id)->coord_.y;
+
+
+    int dist = sqrt(pow((x-c2.x),2)+pow((y-c2.y),2));
     qDebug() << dist;
     return dist;
 
 }
 
-std::vector<TownID> Datastructures::towns_nearest(Coord /*coord*/)
+std::vector<TownID> Datastructures::towns_nearest(Coord coord)
 {
-//    std::vector <TownID> results = {};
+    std::vector<TownID> result = {};
 
-//    for (Town* town : towns_by_ds_vec){
 
-//        int dist = find_distance(town->coord_, coord);
+    // O(n)
+    for (Town* town: towns_by_ds_vec){
 
-//        auto lower = std::lower_bound(results.begin(), results.begin(),dist);
+        result.push_back(town->id_);
 
-//    }
-    throw NotImplemented("longest_vassal_path()");
+    }
 
+    // O(nlog(n))
+    std::sort(result.begin(), result.end(), [this, &coord](TownID i, TownID j){
+
+        return find_distance(i, coord) < find_distance(j, coord);
+    });
+
+    return result;
 }
 
-std::vector<TownID> Datastructures::longest_vassal_path(TownID /*id*/)
+
+
+std::vector<TownID> Datastructures::longest_vassal_path(TownID id)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("longest_vassal_path()");
+
+
 }
 
 int Datastructures::total_net_tax(TownID /*id*/)
