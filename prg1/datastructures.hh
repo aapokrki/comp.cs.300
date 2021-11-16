@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <tuple>
 #include <utility>
 #include <limits>
@@ -182,6 +183,7 @@ public:
     int total_net_tax(TownID id);
 
 
+
 private:
     struct Town{
         TownID id_ = "";
@@ -211,6 +213,7 @@ private:
 
 
 
+    size_t rec_vassal_path(const Town *town, std::vector<TownID> &current_path, std::vector<TownID> &longest_path);
 };
 
 #endif // DATASTRUCTURES_HH

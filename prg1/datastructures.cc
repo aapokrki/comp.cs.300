@@ -377,10 +377,34 @@ std::vector<TownID> Datastructures::towns_nearest(Coord coord)
     return result;
 }
 
+size_t Datastructures::rec_vassal_path(const Town* town, std::vector<TownID>& current_path, std::vector<TownID>& longest_path){
 
+    if(town->vassals.empty()){
+        return current_path.size();
+
+    }
+    qDebug() << current_path.size();
+    for(Town* vassal : town->vassals){
+        current_path.push_back(vassal->id_);
+
+        if(rec_vassal_path(vassal, current_path, longest_path) > longest_path.size()){
+            longest_path = current_path;
+        }
+
+    }
+    current_path.pop_back();
+
+    return current_path.size();
+}
 
 std::vector<TownID> Datastructures::longest_vassal_path(TownID id)
 {
+    std::vector<TownID> current_path = {id};
+    std::vector<TownID> longest_path = {id};
+
+    rec_vassal_path(towns_by_ds.at(id), current_path, longest_path);
+
+    return longest_path;
 
 
 }
