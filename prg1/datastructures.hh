@@ -214,6 +214,7 @@ private:
 
 
     size_t rec_vassal_path(const Town *town, std::vector<TownID> &current_path, std::vector<TownID> &longest_path);
+    double rec_net_tax(Town *town);
 };
 
 #endif // DATASTRUCTURES_HH

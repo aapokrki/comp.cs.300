@@ -399,6 +399,9 @@ size_t Datastructures::rec_vassal_path(const Town* town, std::vector<TownID>& cu
 
 std::vector<TownID> Datastructures::longest_vassal_path(TownID id)
 {
+    if (!id_exists(id)){
+        return {NO_TOWNID};
+    }
     std::vector<TownID> current_path = {id};
     std::vector<TownID> longest_path = {id};
 
@@ -409,9 +412,38 @@ std::vector<TownID> Datastructures::longest_vassal_path(TownID id)
 
 }
 
-int Datastructures::total_net_tax(TownID /*id*/)
+double Datastructures::rec_net_tax(Town* town){
+
+
+    if (town->vassals.empty()){
+        return town->tax_;
+    }
+
+    int town_total_tax = 0;
+
+    for (Town* t : town->vassals){
+
+        double tax = rec_net_tax(t);
+        town_total_tax += std::floor(0.1 * tax);
+    }
+
+    return town_total_tax + town->tax_;
+
+}
+
+
+int Datastructures::total_net_tax(TownID id)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("total_net_tax()");
+    Town* target = towns_by_ds.at(id);
+    if(!id_exists(id)){
+        return NO_VALUE;
+    }
+
+    int net_tax = rec_net_tax(target);
+
+    if (target->master != nullptr){
+        std::cout << target->name_ << std::endl;
+        net_tax = net_tax - std::floor(net_tax * 0.1);
+    }
+    return net_tax;
 }
