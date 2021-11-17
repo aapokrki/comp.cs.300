@@ -143,17 +143,23 @@ bool Datastructures::change_town_name(TownID id, const Name &newname)
 std::vector<TownID> Datastructures::towns_alphabetically()
 {
     std::vector<TownID> towns_alpha = {};
+    std::multimap<Name, Town*> sort_map_alpha = {};
+    for (Town* town : towns_by_ds_vec){
 
+        sort_map_alpha.insert(std::pair(town->name_, town));
 
+    }
     // Replace the line below with your implementation
 
-    std::sort(towns_by_ds_vec.begin(), towns_by_ds_vec.end(),
-              [](Town* l, Town* r){ // O(n log(n))
-        return l->name_ < r->name_;
-    });
+//    std::sort(towns_by_ds_vec.begin(), towns_by_ds_vec.end(),
+//              [](Town* l, Town* r){ // O(n log(n))
+//        return l->name_ < r->name_;
+//    });
 
-    for (auto town : towns_by_ds_vec){ // O(n))
-        towns_alpha.push_back(town->id_); // O(1)
+
+
+    for (const auto& pair : sort_map_alpha){ // O(n))
+        towns_alpha.push_back(pair.second->id_); // O(1)
     }
     return towns_alpha;
 }
@@ -164,16 +170,23 @@ std::vector<TownID> Datastructures::towns_distance_increasing()
 
     std::vector<TownID> towns_coord = {};
 
+    std::multimap<int, Town*> sort_map_dist = {};
+    for (Town* town : towns_by_ds_vec){
+
+        sort_map_dist.insert(std::pair(find_distance(town->id_,{0,0}), town));
+
+    }
+
     // Replace the line below with your implementation
 
-    std::sort(towns_by_ds_vec.begin(), towns_by_ds_vec.end(),
-              [this](Town* l, Town* r){ // O(n log(n))
-        return find_distance(l->id_, {0,0}) < find_distance(r->id_, {0,0});
+//    std::sort(towns_by_ds_vec.begin(), towns_by_ds_vec.end(),
+//              [this](Town* l, Town* r){ // O(n log(n))
+//        return find_distance(l->id_, {0,0}) < find_distance(r->id_, {0,0});
 
-    });
+//    });
 
-    for (auto town : towns_by_ds_vec){ // O(n))
-        towns_coord.push_back(town->id_); // O(1)
+    for (std::pair<int, Town*> town : sort_map_dist){ // O(n))
+        towns_coord.push_back(town.second->id_); // O(1)
     }
 
     return towns_coord;
@@ -187,12 +200,19 @@ TownID Datastructures::min_distance()
     if(towns_by_ds_vec.size() == 0){return NO_TOWNID;}
 
 
-    Town* result = *std::min_element(towns_by_ds_vec.begin(),towns_by_ds_vec.end(),
-                                               [this](Town* l, Town* r){ // O(n)
-            return find_distance(l->id_, {0,0}) < find_distance(r->id_, {0,0});
-    });
+//    Town* result = *std::min_element(towns_by_ds_vec.begin(),towns_by_ds_vec.end(),
+//                                               [this](Town* l, Town* r){ // O(n)
+//            return find_distance(l->id_, {0,0}) < find_distance(r->id_, {0,0});
+//    });
 
-    return result->id_;
+    std::map<int, Town*> sort_min = {};
+    for (Town* town : towns_by_ds_vec){
+
+        sort_min.insert(std::pair(find_distance(town->id_,{0,0}), town));
+
+    }
+
+    return sort_min.begin()->second->id_;
 
 }
 
@@ -202,12 +222,18 @@ TownID Datastructures::max_distance()
 
      if(towns_by_ds_vec.size() == 0){return NO_TOWNID;}
 
-    Town* result = *std::max_element(towns_by_ds_vec.begin(),towns_by_ds_vec.end(),
-                                               [this](Town* l, Town* r){ // O(n)
-            return find_distance(l->id_, {0,0}) < find_distance(r->id_, {0,0});
-    });
+//    Town* result = *std::max_element(towns_by_ds_vec.begin(),towns_by_ds_vec.end(),
+//                                               [this](Town* l, Town* r){ // O(n)
+//            return find_distance(l->id_, {0,0}) < find_distance(r->id_, {0,0});
+//    });
+     std::map<int, Town*> sort_max = {};
+     for (Town* town : towns_by_ds_vec){ // O(n)
 
-    return result->id_;
+         sort_max.insert(std::pair(find_distance(town->id_,{0,0}), town)); //O(log(n))
+
+     }
+
+     return std::prev(sort_max.end())->second->id_;
 }
 
 bool Datastructures::id_exists(TownID id){
@@ -360,21 +386,26 @@ int Datastructures::find_distance(TownID id, Coord c2){
 std::vector<TownID> Datastructures::towns_nearest(Coord coord)
 {
     std::vector<TownID> result = {};
-
+    std::multimap<int, Town*> sort_nearest = {};
 
     // O(n)
     for (Town* town: towns_by_ds_vec){
 
-        result.push_back(town->id_);
+        sort_nearest.insert(std::pair(find_distance(town->id_,coord), town));
 
     }
 
     // O(nlog(n))
-    std::sort(result.begin(), result.end(), [this, &coord](TownID i, TownID j){
+//    std::sort(result.begin(), result.end(), [this, &coord](TownID i, TownID j){
 
-        return find_distance(i, coord) < find_distance(j, coord);
-    });
+//        return find_distance(i, coord) < find_distance(j, coord);
+//    });
 
+    // O(n)
+    for(const auto& pair : sort_nearest){
+
+        result.push_back(pair.second->id_);
+    }
     return result;
 }
 
