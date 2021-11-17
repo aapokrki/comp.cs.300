@@ -59,7 +59,7 @@ void Datastructures::clear_all()
         towns_by_ds_vec = {};
         towns_by_ds = {};
 
-        qDebug() << towns_by_ds.size();
+//        qDebug() << towns_by_ds.size();
     }
 }
 
@@ -143,6 +143,7 @@ bool Datastructures::change_town_name(TownID id, const Name &newname)
 std::vector<TownID> Datastructures::towns_alphabetically()
 {
     std::vector<TownID> towns_alpha = {};
+
 
     // Replace the line below with your implementation
 
@@ -233,7 +234,7 @@ bool Datastructures::mastercheck(Town* vassal, Town* master){
 
     // Unique case, last master has no master. No loops
     if(master == nullptr){
-        qDebug() << "nullptr found";
+//        qDebug() << "nullptr found";
         return true;
     }
 
@@ -324,7 +325,7 @@ bool Datastructures::remove_town(TownID id)
 {
 
     if (id_exists(id)){
-        qDebug() << "!!!";
+//        qDebug() << "!!!";
 
         change_master(towns_by_ds.at(id));
 
@@ -333,8 +334,8 @@ bool Datastructures::remove_town(TownID id)
 
         delete towns_by_ds.at(id);
         towns_by_ds.erase(id);
-        qDebug() << towns_by_ds.size();
-        qDebug() << towns_by_ds_vec.size();
+//        qDebug() << towns_by_ds.size();
+//        qDebug() << towns_by_ds_vec.size();
 
 //        qDebug() << "deleted";
 
@@ -351,7 +352,7 @@ int Datastructures::find_distance(TownID id, Coord c2){
 
 
     int dist = sqrt(pow((x-c2.x),2)+pow((y-c2.y),2));
-    qDebug() << dist;
+//    qDebug() << dist;
     return dist;
 
 }
@@ -383,7 +384,7 @@ size_t Datastructures::rec_vassal_path(const Town* town, std::vector<TownID>& cu
         return current_path.size();
 
     }
-    qDebug() << current_path.size();
+//    qDebug() << current_path.size();
     for(Town* vassal : town->vassals){
         current_path.push_back(vassal->id_);
 
@@ -442,7 +443,6 @@ int Datastructures::total_net_tax(TownID id)
     int net_tax = rec_net_tax(target);
 
     if (target->master != nullptr){
-        std::cout << target->name_ << std::endl;
         net_tax = net_tax - std::floor(net_tax * 0.1);
     }
     return net_tax;
