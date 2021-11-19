@@ -310,7 +310,6 @@ MainProgram::CmdResult MainProgram::cmd_remove_town(ostream& output, MatchIter b
     bool success = ds_.remove_town(id);
     if (success)
     {
-
         output << name << " removed." << endl;
         view_dirty = true;
         return {};
