@@ -170,8 +170,8 @@ public:
 
     // Non-compulsory phase 1 operations
 
-    // Estimate of performance: O(n)
-    // Short rationale for estimate: 5 * O(n) = O(n)
+    // Estimate of performance: Worst case O(n^2) Best case: Omega(1)
+    // Short rationale for estimate: worst case for loop O(n) with worst case O(n) map.erase
     bool remove_town(TownID id);
 
     // Estimate of performance: O(n log n)

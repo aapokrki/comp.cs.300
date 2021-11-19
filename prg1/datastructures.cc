@@ -8,10 +8,7 @@
 #include "datastructures.hh"
 
 #include <random>
-#include <iostream>
 #include <cmath>
-
-#include <QDebug>
 
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
 
@@ -280,10 +277,18 @@ bool Datastructures::remove_town(TownID id)
         // Change master connections
         change_master(towns.at(id)); // O(n)
 
-        auto const to_remove = std::remove(towns_vec.begin(),
+        // remove from towns_vec
+        auto const to_rm = std::remove(towns_vec.begin(),
                                            towns_vec.end(), towns.at(id)); //O(n)
 
-        towns_vec.erase(to_remove, towns_vec.end()); //O(n)
+        towns_vec.erase(to_rm, towns_vec.end()); //O(n)
+
+        // remove from towns_dist
+        for (auto const& pair : towns_dist){ // Worst: O(n)
+            if(pair.second == id){
+                towns_dist.erase(pair.first); // Worst: O(n) Average: O(1)
+            }
+        }
 
         delete towns.at(id);
 
