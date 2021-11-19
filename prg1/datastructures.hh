@@ -99,32 +99,34 @@ public:
     Datastructures();
     ~Datastructures();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O(1)
+    // Short rationale for estimate: .size() is constant
     unsigned int town_count();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: for loop to delete towns
     void clear_all();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: adding to map is O(log n), but it has to go through
+    //                               the map every time for no duplicates, so O(n)
     bool add_town(TownID id, Name const& name, Coord coord, int tax);
 
-    // Estimate of performance: O(N) Ø(1)
-    // Short rationale for estimate: Output is searched from an unordered_map with a key value "id". Therefore O(N) Ø(1)
+    // Estimate of performance: At worst O(N), Average O(1)
+    // Short rationale for estimate: unordered_map.at is at Worst: O(n), Average: O(1)
     Name get_town_name(TownID id);
 
-    // Estimate of performance: O(N) Ø(1)
-    // Short rationale for estimate: Output is searched from an unordered_map with a key value "id". Therefore O(N) Ø(1)
+    // Estimate of performance: At worst O(N), Average O(1)
+    // Short rationale for estimate: unordered_map.at is at Worst: O(n), Average: O(1)
     Coord get_town_coordinates(TownID id);
 
-    // Estimate of performance: O(N) Ø(1)
-    // Short rationale for estimate: Output is searched from an unordered_map with a key value "id". Therefore O(N) Ø(1)
+    // Estimate of performance: At worst O(N), Average O(1)
+    // Short rationale for estimate: unordered_map.at is at Worst: O(n), Average: O(1)
     int get_town_tax(TownID id);
 
-    // Estimate of performance: O(1)
-    // Short rationale for estimate: Returns instantly the made vector in private
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: For loop goes through the whole map.
+    //                               So it depends linearry on the amount of elements
     std::vector<TownID> all_towns();
 
     // Estimate of performance: O(N)
@@ -132,54 +134,61 @@ public:
     //                               So it depends linearry on the amount of elements
     std::vector<TownID> find_towns(Name const& name);
 
-    // Estimate of performance: O(N)
-    // Short rationale for estimate: Most likely constant. Extremely rare worst case O(N^2)
+    // Estimate of performance: Worst: O(n), Average: O(1)
+    // Short rationale for estimate: multimap.find and .at are constant in average
+
     bool change_town_name(TownID id, Name const& newname);
 
-    // Estimate of performance: O(n log(n)) + O(n)
-    // Short rationale for estimate:
+    // Estimate of performance: O(n log(n))
+    // Short rationale for estimate: for loop with multimap insert
     std::vector<TownID> towns_alphabetically();
 
-    // Estimate of performance: O(n log(n)) + O(n)
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: for loop to push_back to vector.
     std::vector<TownID> towns_distance_increasing();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O(1)
+    // Short rationale for estimate: Just calling already sorted data
     TownID min_distance();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O(1)
+    // Short rationale for estimate: Just calling already sorted data
     TownID max_distance();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: linear recursive function call and multimap.find
+    //                               is at worst O(n), but average is O(1)
     bool add_vassalship(TownID vassalid, TownID masterid);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O(n)
+    // Short rationale for estimate: std::for_each is O(n) so the whole thing is O(n)
     std::vector<TownID> get_town_vassals(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance:O(n)
+    // Short rationale for estimate: Recursion that calls itself as long as vassals have masters
     std::vector<TownID> taxer_path(TownID id);
 
     // Non-compulsory phase 1 operations
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate: 5 * O(n) = O(n)
     bool remove_town(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n log n)
+    // Short rationale for estimate: for loop inserting to a multimap
+    //                                  O(n) * O(log n) = O(n log n)
     std::vector<TownID> towns_nearest(Coord coord);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)?
+    // Short rationale for estimate: Recursive function call in a for loop seems to be O(n^2)
+    //                               but every town in the vassal tree is visited only once!
+    //                               Therefore the complexity would be O(n), right?
     std::vector<TownID> longest_vassal_path(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)?
+    // Short rationale for estimate: Recursive function call in a for loop seems to be O(n^2)
+    //                               but every town in the vassal tree is visited ONLY ONCE!
+    //                               Therefore the complexity would be O(n), right?
     int total_net_tax(TownID id);
 
 
@@ -195,23 +204,18 @@ private:
         std::vector<Town*> vassals_;
     };
 
-    bool mastercheck(Town* vassal, Town* master);
-    std::vector<TownID> get_masters(Town* town, std::vector<TownID> vec);
-
-    void change_master(Town *town);
-    int dist(TownID id, Coord c2);
-
-    // Add stuff needed for your class implementation here
-
-
-    std::vector <Town*> towns_vec = {};
-
+    std::vector<Town*> towns_vec = {};
     std::unordered_map<TownID,Town*> towns = {};
 
+    std::map<int,TownID> towns_dist = {};
 
-
-    size_t rec_vassal_path(const Town *town, std::vector<TownID> &current_path, std::vector<TownID> &longest_path);
+    bool mastercheck(Town* vassal, Town* master);
+    std::vector<TownID> get_masters(Town* town, std::vector<TownID> vec);
+    void change_master(Town *town);
+    int dist(TownID id, Coord c2);
+    unsigned long long rec_vassal_path(const Town *town, std::vector<TownID> &current_path, std::vector<TownID> &longest_path);
     double rec_net_tax(Town *town);
+
 };
 
 #endif // DATASTRUCTURES_HH
