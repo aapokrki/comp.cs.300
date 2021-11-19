@@ -1,0 +1,245 @@
+> read "perftest-all.txt"
+** Commands from 'perftest-all.txt'
+> # Read performance tests of all operations
+> read "perftest-compulsory.txt"
+** Commands from 'perftest-compulsory.txt'
+> # Read performance tests of compulsory operations
+> read "perftest-access.txt"
+** Commands from 'perftest-access.txt'
+> # Test the performance of print_town
+> perftest print_town 20 5000 10;30;100;300;1000;3000;10000;30000;100000;300000;1000000
+Timeout for each N is 20 sec. 
+For each N perform 5000 random command(s) from:
+print_town 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,    0.0009461 ,    0.0090063 ,    0.0099524
+     30 ,            0 ,    0.0140213 ,    0.0140213
+    100 ,    0.0010002 ,    0.0119828 ,     0.012983
+    300 ,    0.0009999 ,    0.0120245 ,    0.0130244
+   1000 ,    0.0050007 ,     0.012995 ,    0.0179957
+   3000 ,    0.0149848 ,    0.0100016 ,    0.0249864
+  10000 ,    0.0540121 ,    0.0100095 ,    0.0640216
+  30000 ,     0.176048 ,    0.0150031 ,     0.191051
+ 100000 ,     0.688282 ,     0.014003 ,     0.702285
+ 300000 ,      2.17852 ,    0.0150033 ,      2.19353
+1000000 ,         6.98 ,    0.0110026 ,        6.991
+> 
+** End of commands from 'perftest-access.txt'
+> read "perftest-sorting.txt"
+** Commands from 'perftest-sorting.txt'
+> # Test the performance of sorting, both with adding towns in between and without
+> perftest towns_alphabetically;towns_distance_increasing 20 500 10;30;100;300;1000;3000;10000;30000;100000;300000
+Timeout for each N is 20 sec. 
+For each N perform 500 random command(s) from:
+towns_alphabetically towns_distance_increasing 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,    0.0050144 ,    0.0050144
+     30 ,            0 ,    0.0119945 ,    0.0119945
+    100 ,            0 ,    0.0439892 ,    0.0439892
+    300 ,    0.0010004 ,     0.138031 ,     0.139032
+   1000 ,    0.0040068 ,     0.433345 ,     0.437352
+   3000 ,    0.0089759 ,      1.44551 ,      1.45449
+  10000 ,    0.0349747 ,      6.24324 ,      6.27822
+  30000 ,     0.102023 , Timeout!
+> perftest towns_alphabetically;towns_distance_increasing;random_add 20 500 10;30;100;300;1000;3000;10000;30000;100000;300000
+Timeout for each N is 20 sec. 
+For each N perform 500 random command(s) from:
+towns_alphabetically towns_distance_increasing random_add 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,    0.0280055 ,    0.0280055
+     30 ,            0 ,    0.0340063 ,    0.0340063
+    100 ,     0.001001 ,    0.0530116 ,    0.0540126
+    300 ,    0.0009967 ,     0.120026 ,     0.121023
+   1000 ,    0.0029973 ,     0.344077 ,     0.347074
+   3000 ,    0.0099973 ,     0.988223 ,      0.99822
+  10000 ,    0.0339976 ,        4.359 ,      4.39299
+  30000 ,      0.10801 ,      14.1207 ,      14.2288
+ 100000 ,     0.381124 , Timeout!
+> 
+** End of commands from 'perftest-sorting.txt'
+> read "perftest-minmax.txt"
+** Commands from 'perftest-minmax.txt'
+> # Test the performance of min/max distance, both with adding towns between min/max and without
+> perftest mindist;maxdist 20 5000 10;30;100;300;1000;3000;10000;30000;100000;300000;1000000
+Timeout for each N is 20 sec. 
+For each N perform 5000 random command(s) from:
+mindist maxdist 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,    0.0340066 ,    0.0340066
+     30 ,            0 ,    0.0980222 ,    0.0980222
+    100 ,            0 ,     0.341076 ,     0.341076
+    300 ,    0.0010016 ,      1.04423 ,      1.04524
+   1000 ,    0.0049975 ,      3.55379 ,      3.55879
+   3000 ,    0.0109984 ,      10.8249 ,      10.8359
+  10000 ,    0.0350175 , Timeout!
+> perftest mindist;maxdist;random_add 20 5000 10;30;100;300;1000;3000;10000;30000;100000;300000;1000000
+Timeout for each N is 20 sec. 
+For each N perform 5000 random command(s) from:
+mindist maxdist random_add 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,      1.99945 ,      1.99945
+     30 ,            0 ,      2.04546 ,      2.04546
+    100 ,     0.001001 ,      2.23455 ,      2.23555
+    300 ,    0.0010001 ,      2.67916 ,      2.68016
+   1000 ,    0.0029979 ,      4.43203 ,      4.43503
+   3000 ,    0.0109993 ,      9.60425 ,      9.61525
+  10000 ,    0.0370044 , Timeout!
+> 
+** End of commands from 'perftest-minmax.txt'
+> read "perftest-change.txt"
+** Commands from 'perftest-change.txt'
+> # Test the performance of changing name
+> perftest change_town_name 20 5000 10;30;100;300;1000;3000;10000;30000;100000;300000;1000000
+Timeout for each N is 20 sec. 
+For each N perform 5000 random command(s) from:
+change_town_name 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,    0.0040008 ,    0.0040008
+     30 ,            0 ,     0.003999 ,     0.003999
+    100 ,    0.0009884 ,    0.0100011 ,    0.0109895
+    300 ,    0.0009989 ,    0.0200038 ,    0.0210027
+   1000 ,    0.0029961 ,    0.0570119 ,     0.060008
+   3000 ,    0.0109986 ,     0.136031 ,     0.147029
+  10000 ,    0.0320028 ,     0.500112 ,     0.532115
+  30000 ,     0.105023 ,       1.3043 ,      1.40932
+ 100000 ,     0.384097 ,      10.9974 ,      11.3815
+ 300000 ,      1.25828 , Timeout!
+> 
+** End of commands from 'perftest-change.txt'
+> read "perftest-find_towns.txt"
+** Commands from 'perftest-find_towns.txt'
+> # Test the performance of finding towns
+> perftest find_towns 20 5000 10;30;100;300;1000;3000;10000;30000;100000;300000;1000000
+Timeout for each N is 20 sec. 
+For each N perform 5000 random command(s) from:
+find_towns 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,    0.0120034 ,    0.0120034
+     30 ,            0 ,    0.0159912 ,    0.0159912
+    100 ,            0 ,    0.0190143 ,    0.0190143
+    300 ,    0.0009793 ,    0.0420075 ,    0.0429868
+   1000 ,    0.0029856 ,     0.155035 ,     0.158021
+   3000 ,    0.0109836 ,     0.413143 ,     0.424127
+  10000 ,    0.0330106 ,      1.35823 ,      1.39124
+  30000 ,     0.111506 ,      9.28767 ,      9.39917
+ 100000 ,     0.376092 , Timeout!
+> 
+** End of commands from 'perftest-find_towns.txt'
+> read "perftest-taxer_path.txt"
+** Commands from 'perftest-taxer_path.txt'
+> # Test the performance of taxer_path
+> perftest taxer_path 20 5000 10;30;100;300;1000;3000;10000;30000;100000;300000;1000000
+Timeout for each N is 20 sec. 
+For each N perform 5000 random command(s) from:
+taxer_path 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,    0.0166225 ,    0.0166225
+     30 ,            0 ,    0.0240058 ,    0.0240058
+    100 ,    0.0009924 ,     0.034014 ,    0.0350064
+    300 ,    0.0009967 ,    0.0470095 ,    0.0480062
+   1000 ,    0.0079779 ,    0.0560134 ,    0.0639913
+   3000 ,     0.021994 ,    0.0730403 ,    0.0950343
+  10000 ,    0.0349685 ,    0.0650275 ,     0.099996
+  30000 ,     0.104024 ,    0.0830185 ,     0.187042
+ 100000 ,       0.3801 ,    0.0960162 ,     0.476116
+ 300000 ,      1.25357 ,     0.119033 ,       1.3726
+1000000 ,      4.51102 ,     0.123028 ,      4.63405
+> 
+** End of commands from 'perftest-taxer_path.txt'
+> 
+** End of commands from 'perftest-compulsory.txt'
+> read "perftest-towns_nearest.txt"
+** Commands from 'perftest-towns_nearest.txt'
+> # Test the performance of towns_nearest
+> perftest towns_nearest 20 500 10;30;100;300;1000;3000;10000;30000;100000;300000
+Timeout for each N is 20 sec. 
+For each N perform 500 random command(s) from:
+towns_nearest 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,    0.0050004 ,    0.0050004
+     30 ,            0 ,    0.0140092 ,    0.0140092
+    100 ,    0.0009976 ,    0.0440099 ,    0.0450075
+    300 ,    0.0020005 ,      0.13503 ,     0.137031
+   1000 ,    0.0029998 ,     0.427096 ,     0.430096
+   3000 ,    0.0100016 ,      1.37647 ,      1.38647
+  10000 ,     0.031007 ,      5.73959 ,      5.77059
+  30000 ,     0.104023 , Timeout!
+> 
+** End of commands from 'perftest-towns_nearest.txt'
+> read "perftest-longest_vassal_path.txt"
+** Commands from 'perftest-longest_vassal_path.txt'
+> # Test the performance of longest_vassal_path
+> perftest longest_vassal_path 20 5000 10;30;100;300;1000;3000;10000;30000;100000;300000;1000000
+Timeout for each N is 20 sec. 
+For each N perform 5000 random command(s) from:
+longest_vassal_path 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,    0.0160031 ,    0.0160031
+     30 ,            0 ,    0.0190039 ,    0.0190039
+    100 ,    0.0009988 ,    0.0330047 ,    0.0340035
+    300 ,    0.0009997 ,    0.0550121 ,    0.0560118
+   1000 ,    0.0029966 ,    0.0990212 ,     0.102018
+   3000 ,    0.0089989 ,      0.37809 ,     0.387089
+  10000 ,    0.0350036 ,       1.3263 ,       1.3613
+  30000 ,     0.108022 ,     0.150033 ,     0.258056
+ 100000 ,      0.40209 ,      2.26607 ,      2.66816
+ 300000 ,      1.28128 ,     0.374085 ,      1.65537
+1000000 ,      4.55207 ,      1.16726 ,      5.71934
+> 
+** End of commands from 'perftest-longest_vassal_path.txt'
+> read "perftest-total_net_tax.txt"
+** Commands from 'perftest-total_net_tax.txt'
+> # Test the performance of total_net_tax
+> perftest total_net_tax 20 5000 10;30;100;300;1000;3000;10000;30000;100000;300000;1000000
+Timeout for each N is 20 sec. 
+For each N perform 5000 random command(s) from:
+total_net_tax 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,    0.0039878 ,    0.0039878
+     30 ,            0 ,    0.0030908 ,    0.0030908
+    100 ,            0 ,    0.0060135 ,    0.0060135
+    300 ,    0.0009723 ,     0.006988 ,    0.0079603
+   1000 ,    0.0029968 ,    0.0149984 ,    0.0179952
+   3000 ,    0.0209957 ,    0.0050011 ,    0.0259968
+  10000 ,    0.0459955 ,    0.0059904 ,    0.0519859
+  30000 ,     0.113977 ,    0.0120025 ,      0.12598
+ 100000 ,     0.391306 ,    0.0130031 ,     0.404309
+ 300000 ,      1.21127 ,    0.0220045 ,      1.23328
+1000000 ,      4.63991 ,    0.0150051 ,      4.65491
+> 
+** End of commands from 'perftest-total_net_tax.txt'
+> read "perftest-remove.txt"
+** Commands from 'perftest-remove.txt'
+> # Test the performance of removal
+> perftest remove_town 20 5000 10;30;100;300;1000;3000;10000;30000;100000;300000;1000000
+Timeout for each N is 20 sec. 
+For each N perform 5000 random command(s) from:
+remove_town 
+
+      N ,    add (sec) ,   cmds (sec) ,  total (sec)
+     10 ,            0 ,    0.0010083 ,    0.0010083
+     30 ,            0 ,    0.0019873 ,    0.0019873
+    100 ,            0 ,    0.0020084 ,    0.0020084
+    300 ,    0.0009912 ,        0.001 ,    0.0019912
+   1000 ,    0.0029801 ,    0.0010002 ,    0.0039803
+   3000 ,    0.0100022 ,    0.0030007 ,    0.0130029
+  10000 ,     0.033973 ,    0.0010002 ,    0.0349732
+  30000 ,     0.113037 ,    0.0020018 ,     0.115039
+ 100000 ,     0.535108 ,    0.0030006 ,     0.538108
+ 300000 ,      1.32264 ,    0.0030006 ,      1.32564
+1000000 ,      4.59403 ,    0.0030008 ,      4.59703
+> 
+** End of commands from 'perftest-remove.txt'
+> 
+** End of commands from 'perftest-all.txt'
