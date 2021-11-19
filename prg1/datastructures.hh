@@ -191,25 +191,22 @@ private:
         Coord coord_ = {};
         int tax_ = 0;
 
-        Town* master = nullptr;
-        std::vector<Town*> vassals;
-        std::vector<TownID> vassals_vec;
+        Town* master_ = nullptr;
+        std::vector<Town*> vassals_;
     };
-
-    bool id_exists(TownID id);
 
     bool mastercheck(Town* vassal, Town* master);
     std::vector<TownID> get_masters(Town* town, std::vector<TownID> vec);
 
     void change_master(Town *town);
-    int find_distance(TownID id, Coord c2);
+    int dist(TownID id, Coord c2);
 
     // Add stuff needed for your class implementation here
 
 
-    std::vector <Town*> towns_by_ds_vec = {};
+    std::vector <Town*> towns_vec = {};
 
-    std::unordered_map<TownID,Town*> towns_by_ds = {};
+    std::unordered_map<TownID,Town*> towns = {};
 
 
 
