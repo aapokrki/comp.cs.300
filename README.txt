@@ -3,6 +3,8 @@ Aapo Kärki
 aapo.karki@tuni.fi
 H292001
 
+Algoritmien ja tietorakenteiden tehokkuudet saatu www.cppreference.com ja  www.cplusplus.com sivuilta
+
 Tavoitteena oli tehdä mahdollisimman tehokkaat funktiot oikeilla algoritmeilla
 ja tietorakenteilla. Ensimmäinen versioni oli varsin hidas ja esimerkiksi
 min- ja max distance funktiot eivät timeouttasivat melkein heti.
