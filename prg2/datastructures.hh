@@ -247,6 +247,8 @@ private:
         std::vector<Town*> vassals_;
 
         std::vector<Road> roads_;
+
+        bool visited = false;
     };
 
     std::vector<Town*> towns_vec = {};

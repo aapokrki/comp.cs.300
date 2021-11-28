@@ -7,8 +7,9 @@
 #include "datastructures.hh"
 
 #include <random>
-
+#include <QDebug>
 #include <cmath>
+#include <list>
 
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
 
@@ -50,12 +51,14 @@ void Datastructures::clear_all()
     if(!towns.empty()){
 
         for (auto& town : towns){
+
             delete town.second;
         }
         // resets all maps and stuff
         towns_vec = {};
         towns = {};
         towns_dist = {};
+
 
     }
 }
@@ -418,7 +421,9 @@ int Datastructures::total_net_tax(TownID id)
 void Datastructures::clear_roads()
 {
     // Replace the line below with your implementation
-    throw NotImplemented("clear_roads()");
+    for (auto const& town : towns_vec){ //O(n)
+        town->roads_ = {};
+    }
 }
 
 std::vector<std::pair<TownID, TownID>> Datastructures::all_roads()
@@ -465,19 +470,53 @@ bool Datastructures::add_road(TownID town1, TownID town2)
 std::vector<TownID> Datastructures::get_roads_from(TownID id)
 {
     std::vector <TownID> straight_roads = {};
-    for(auto const& road : towns.at(id)->roads_){
-        straight_roads.push_back(road.second);
+    if(towns.find(id) != towns.end()){
 
+        for(auto const& road : towns.at(id)->roads_){
+            straight_roads.push_back(road.second);
+
+        }
+        return straight_roads;
     }
-    return straight_roads;
+    return {NO_TOWNID};
+
 
 }
 
-std::vector<TownID> Datastructures::any_route(TownID /*fromid*/, TownID /*toid*/)
+std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("any_route()");
+
+    std::vector<TownID> route_found = {};
+    std::list<TownID> queue;
+
+    towns.at(fromid)->visited = true;
+    queue.push_back(fromid);
+
+    while(!queue.empty()){
+
+        TownID current_town = queue.front();
+
+        route_found.push_back(current_town);
+
+        if (current_town == toid){
+            break;
+        }
+        queue.pop_front();
+
+        for(auto const& road : towns.at(current_town)->roads_){
+
+            TownID adj_town = road.second;
+            if(!towns.at(adj_town)->visited){
+
+                towns.at(adj_town)->visited = true;
+                queue.push_back(adj_town);
+
+            }
+        }
+    }
+
+
+    return route_found;
 }
 
 bool Datastructures::remove_road(TownID /*town1*/, TownID /*town2*/)
