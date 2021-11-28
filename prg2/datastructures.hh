@@ -248,7 +248,10 @@ private:
 
         std::vector<Road> roads_;
 
-        bool visited = false;
+        // 0 = not visited
+        // 1 = visited aka grey
+        // 2 done aka black
+        int visited = 0;
     };
 
     std::vector<Town*> towns_vec = {};
