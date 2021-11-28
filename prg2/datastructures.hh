@@ -252,6 +252,9 @@ private:
         // 1 = visited aka grey
         // 2 done aka black
         int visited = 0;
+        int d = 0;
+        TownID pi = {};
+
     };
 
     std::vector<Town*> towns_vec = {};

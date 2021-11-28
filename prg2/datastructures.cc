@@ -6,6 +6,8 @@
 
 #include "datastructures.hh"
 
+#include <iostream>
+
 #include <random>
 #include <QDebug>
 #include <cmath>
@@ -69,7 +71,7 @@ bool Datastructures::add_town(TownID id, const Name& name, Coord coord, int tax)
 
     if (towns.find(id) == towns.end()){ // O(n)
 
-        Town *town = new Town{id, name, coord, tax,{},{},{}};
+        Town *town = new Town{id, name, coord, tax,{},{},{},{},{},{}};
 
         towns[id] = town; // O(log n)
 
@@ -483,66 +485,67 @@ std::vector<TownID> Datastructures::get_roads_from(TownID id)
 
 }
 
-// DFS ALGO for finding any route between two towns.
+// Since the route doesn't matter.
+// BFS and DFS have similar time complexities, but BFS is better
+// because the goal is never extremely deep. Which suit DFS better
 std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 {
-
+    if(towns.find(fromid) == towns.end() or towns.find(toid) == towns.end()){
+        return {NO_TOWNID};
+    }
     std::vector<TownID> route_found = {};
     std::list<TownID> q;
 
+    towns.at(fromid)->visited = 1;
+    q.push_back(fromid);
 
-    q.push_front(fromid);
+    while(!q.empty()){
 
+        TownID u = q.back();
 
-    while (!q.empty()){
+        if(u == toid){
+            while(true){
+                std::cerr << u << " ";
+                route_found.push_back(u);
 
-        // Current town visited. Add to containers
-        TownID current_town = q.back();
-        towns.at(current_town)->visited = 1;
-        route_found.push_back(current_town);
+                if(u == fromid){
+                    break;
+                }
+                u = towns.at(u)->pi;
 
-        // toid found, end loop
-        if(current_town == toid){
+            }
+            std::cerr <<std::endl;
+            std::cerr << u << " ";
+
+            for (auto const& town : towns_vec){
+                town->d = 0;
+                town->pi = {};
+                town->visited = 0;
+            }
+
             break;
         }
 
+//        std::cerr << u << " ";
+        q.pop_back();
 
-        // Add connecting towns to the q to be processed
-        for(auto const& road : towns.at(current_town)->roads_){
-
-            if(towns.at(road.second)->visited == 0){
-                towns.at(road.second)->visited = 1;
-                q.push_back(road.second);
+        for(auto const& road : towns.at(u)->roads_){
+            Town* v = towns.at(road.second);
+            if(v->visited == 0){
+                v->visited = 1;
+                v->d = towns.at(u)->d +1;
+                v->pi = u;
+                q.push_back(v->id_);
             }
 
 
         }
-
-        // If a dead en is
-        if((fromid != current_town and towns.at(current_town)->roads_.size() == 1)){
-
-            while(true){
-                if(towns.at(q.back())->visited != 0){
-                    q.pop_back();
-                    route_found.pop_back();
-                }else{
-                    break;
-                }
-            }
-        }
-
-        if(q.back() == current_town){
-            q.pop_back();
-            route_found.pop_back();
-        }
-
-
+        towns.at(u)->visited = 2;
     }
-    for (auto const& town : towns){
-        town.second->visited = 0;
-    }
+
+    std::reverse(route_found.begin(), route_found.end());
+
     return route_found;
-
 }
 
 bool Datastructures::remove_road(TownID /*town1*/, TownID /*town2*/)
