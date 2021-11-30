@@ -15,6 +15,7 @@
 #include <functional>
 #include <exception>
 #include <map>
+#include <unordered_set>
 #include <set>
 // Types for IDs
 using TownID = std::string;
@@ -246,7 +247,8 @@ private:
         Town* master_ = nullptr;
         std::vector<Town*> vassals_;
 
-        std::vector<Road> roads_;
+//        std::vector<Road> roads_;
+        std::unordered_set<TownID> roads_;
 
         // 0 = not visited
         // 1 = visited aka grey

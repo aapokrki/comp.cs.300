@@ -436,15 +436,15 @@ std::vector<std::pair<TownID, TownID>> Datastructures::all_roads()
     for (const auto& town : towns_vec){
 
 //        road_network.insert(road_network.end(), town->roads_.begin(),town->roads_.end());
-        for (Road road : town->roads_){
+        for (TownID road : town->roads_){
 
             // smaller id is first
-            if(road.first < road.second){
-                road_network_set.insert(road);
+            if(town->id_ < road){
+                road_network_set.insert({town->id_, road});
 
             // if smaller id wasn't first: swap and then insert
             }else{
-                road_network_set.insert(make_pair(road.second, road.first));
+                road_network_set.insert({road, town->id_});
             }
 
         }
@@ -461,8 +461,12 @@ bool Datastructures::add_road(TownID town1, TownID town2)
     // Also uncomment parameters ( /* param */ -> param )
     if (towns.find(town1) != towns.end() and towns.find(town2) != towns.end()){
 
-        towns.at(town1)->roads_.push_back({town1, town2});
-        towns.at(town2)->roads_.push_back({town2, town1});
+//        towns.at(town1)->roads_.push_back({town1, town2});
+//        towns.at(town2)->roads_.push_back({town2, town1});
+
+        towns.at(town1)->roads_.insert(town2);
+        towns.at(town2)->roads_.insert(town1);
+
         return true;
     }
 
@@ -475,7 +479,7 @@ std::vector<TownID> Datastructures::get_roads_from(TownID id)
     if(towns.find(id) != towns.end()){
 
         for(auto const& road : towns.at(id)->roads_){
-            straight_roads.push_back(road.second);
+            straight_roads.push_back(road);
 
         }
         return straight_roads;
@@ -487,7 +491,7 @@ std::vector<TownID> Datastructures::get_roads_from(TownID id)
 
 // Since the route doesn't matter.
 // BFS and DFS have similar time complexities, but BFS is better
-// because the goal is never extremely deep. Which suit DFS better
+// because the goal is never extremely deep. Which would suit DFS better
 std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 {
     if(towns.find(fromid) == towns.end() or towns.find(toid) == towns.end()){
@@ -505,7 +509,6 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 
         if(u == toid){
             while(true){
-                std::cerr << u << " ";
                 route_found.push_back(u);
 
                 if(u == fromid){
@@ -514,52 +517,68 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
                 u = towns.at(u)->pi;
 
             }
-            std::cerr <<std::endl;
-            std::cerr << u << " ";
-
             for (auto const& town : towns_vec){
                 town->d = 0;
                 town->pi = {};
                 town->visited = 0;
             }
-
             break;
         }
-
-//        std::cerr << u << " ";
         q.pop_back();
 
         for(auto const& road : towns.at(u)->roads_){
-            Town* v = towns.at(road.second);
+            Town* v = towns.at(road);
             if(v->visited == 0){
                 v->visited = 1;
                 v->d = towns.at(u)->d +1;
                 v->pi = u;
                 q.push_back(v->id_);
             }
-
-
         }
         towns.at(u)->visited = 2;
     }
 
     std::reverse(route_found.begin(), route_found.end());
 
+    // Reseting everything
+    for (auto const& town : towns){
+        town.second->d = 0;
+        town.second->visited = 0;
+        town.second->pi = {};
+
+    }
+
     return route_found;
 }
 
-bool Datastructures::remove_road(TownID /*town1*/, TownID /*town2*/)
+
+bool Datastructures::remove_road(TownID town1, TownID town2)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("remove_road()");
+    std::unordered_set<TownID>& t1 = towns.at(town1)->roads_;
+    std::unordered_set<TownID>& t2 = towns.at(town2)->roads_;
+
+
+    if(towns.find(town1) == towns.end() or towns.find(town2) == towns.end()){
+
+        return false;
+    }
+
+    // Implemented unordered_set instead of vector just because of this function
+    // remove if it was shit
+    if(t1.find(town2) == t2.end() or t2.find(town1) == t1.end()){
+
+        return false;
+    }
+
+    t1.erase(town2);
+    t2.erase(town1);
+
+    return true;
 }
 
 std::vector<TownID> Datastructures::least_towns_route(TownID /*fromid*/, TownID /*toid*/)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("least_towns_route()");
+    throw NotImplemented("road_cycle_route()");
 }
 
 std::vector<TownID> Datastructures::road_cycle_route(TownID /*startid*/)
