@@ -672,7 +672,7 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
 
 
 
-    std::vector<TownID> route_found = {};
+    std::vector<TownID> route_found = { };
     std::list<TownID> q;
     bool loop_found = false;
 
@@ -701,7 +701,7 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
                 v->pi.push_back(u);
 
                 q.push_back(v->id_);
-            }else if(v->visited == 1){
+            }else if(v->visited == 1){ //Loop found
 
                 route_found = towns.at(u)->pi;
                 route_found.push_back(u);
@@ -733,6 +733,8 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
     }
 
     return route_found;
+
+
 
 }
 
