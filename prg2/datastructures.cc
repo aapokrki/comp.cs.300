@@ -707,12 +707,15 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
                 route_found.push_back(u);
                 route_found.push_back(v->id_);
 
-                for(TownID t : v->roads_){
-                    if(towns.at(t)->visited){
+                // If the last towns, roads lead to a town that is 'black' aka handled.
+                // then that town is a possible loop point
+                for (const auto& t : v->roads_){
+                    if (towns.at(t)->visited == 2){
                         route_found.push_back(t);
                         break;
                     }
                 }
+
 
                 loop_found = true;
                 break;
