@@ -492,6 +492,8 @@ std::vector<TownID> Datastructures::get_roads_from(TownID id)
 // Since the route doesn't matter.
 // BFS and DFS have similar time complexities, but BFS is better
 // because the goal is never extremely deep. Which would suit DFS better
+// This function has q act as a stack to show that this is just a route.
+// not the shortest, not the longest. Just any route.
 std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 {
     if(towns.find(fromid) == towns.end() or towns.find(toid) == towns.end()){
@@ -501,6 +503,8 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 
 
     std::vector<TownID> route_found = {};
+
+
     std::list<TownID> q;
 
     towns.at(fromid)->visited = 1;
@@ -509,7 +513,8 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
     while(!q.empty()){
 
 
-
+        //.back for stack type
+        //.front for queue type
         TownID u = q.back();
 
 
@@ -532,7 +537,8 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
             break;
         }
 
-
+        //.back for stack type
+        //.front for queue type
         q.pop_back();
 
         for(auto const& road : towns.at(u)->roads_){
@@ -562,6 +568,7 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 }
 
 
+
 bool Datastructures::remove_road(TownID town1, TownID town2)
 {
     std::unordered_set<TownID>& t1 = towns.at(town1)->roads_;
@@ -586,6 +593,8 @@ bool Datastructures::remove_road(TownID town1, TownID town2)
     return true;
 }
 
+
+// Basically the same as any_route, but q acts as a literal queue. first in first out
 std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid)
 {
     if(towns.find(fromid) == towns.end() or towns.find(toid) == towns.end()){
@@ -603,9 +612,9 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
     while(!q.empty()){
 
 
-
+        //.back for stack type
+        //.front for queue type
         TownID u = q.front();
-
 
         //dequb
         std::cerr<<std::endl;
@@ -623,7 +632,8 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
             break;
         }
 
-
+        //.back for stack type
+        //.front for queue type
         q.pop_front();
 
         for(auto const& road : towns.at(u)->roads_){
@@ -634,6 +644,7 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
 
                 v->pi = towns.at(u)->pi;
                 v->pi.push_back(u);
+
 
                 q.push_back(v->id_);
             }
@@ -652,11 +663,74 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
     return route_found;
 }
 
-std::vector<TownID> Datastructures::road_cycle_route(TownID /*startid*/)
+std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("road_cycle_route()");
+
+    if(towns.find(startid) == towns.end()){
+        return {NO_TOWNID};
+    }
+
+
+
+    std::vector<TownID> route_found = {};
+    std::list<TownID> q;
+    bool loop_found = false;
+
+    towns.at(startid)->visited = 1;
+    q.push_back(startid);
+
+    while(!q.empty() or !loop_found){
+
+
+        //.back for stack type
+        //.front for queue type
+        TownID u = q.back();
+
+
+        //.back for stack type
+        //.front for queue type
+        q.pop_back();
+
+        for(auto const& road : towns.at(u)->roads_){
+            Town* v = towns.at(road);
+            if(v->visited == 0){
+                v->visited = 1;
+                v->d = towns.at(u)->d +1;
+
+                v->pi = towns.at(u)->pi;
+                v->pi.push_back(u);
+
+                q.push_back(v->id_);
+            }else if(v->visited == 1){
+
+                route_found = towns.at(u)->pi;
+                route_found.push_back(u);
+                route_found.push_back(v->id_);
+
+                for(TownID t : v->roads_){
+                    if(towns.at(t)->visited){
+                        route_found.push_back(t);
+                        break;
+                    }
+                }
+
+                loop_found = true;
+                break;
+            }
+        }
+        towns.at(u)->visited = 2;
+    }
+
+    // Reseting everything
+    for (auto const& town : towns){
+        town.second->d = 0;
+        town.second->visited = 0;
+        town.second->pi = {};
+
+    }
+
+    return route_found;
+
 }
 
 std::vector<TownID> Datastructures::shortest_route(TownID /*fromid*/, TownID /*toid*/)
