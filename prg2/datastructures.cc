@@ -497,6 +497,9 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
     if(towns.find(fromid) == towns.end() or towns.find(toid) == towns.end()){
         return {NO_TOWNID};
     }
+
+
+
     std::vector<TownID> route_found = {};
     std::list<TownID> q;
 
@@ -505,25 +508,31 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 
     while(!q.empty()){
 
+
+
         TownID u = q.back();
 
+
+        //dequb
+        std::cerr<<std::endl;
+        std::cerr << u <<std::endl;
+        for(auto const& t : towns.at(u)->pi){
+
+            std::cerr << t << "->";
+        }
+        std::cerr<<std::endl;
+        //dequb
+
+
+
+
         if(u == toid){
-            while(true){
-                route_found.push_back(u);
-
-                if(u == fromid){
-                    break;
-                }
-                u = towns.at(u)->pi;
-
-            }
-            for (auto const& town : towns_vec){
-                town->d = 0;
-                town->pi = {};
-                town->visited = 0;
-            }
+            route_found = towns.at(u)->pi;
+            route_found.push_back(toid);
             break;
         }
+
+
         q.pop_back();
 
         for(auto const& road : towns.at(u)->roads_){
@@ -531,14 +540,15 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
             if(v->visited == 0){
                 v->visited = 1;
                 v->d = towns.at(u)->d +1;
-                v->pi = u;
+
+                v->pi = towns.at(u)->pi;
+                v->pi.push_back(u);
+
                 q.push_back(v->id_);
             }
         }
         towns.at(u)->visited = 2;
     }
-
-    std::reverse(route_found.begin(), route_found.end());
 
     // Reseting everything
     for (auto const& town : towns){
@@ -576,9 +586,70 @@ bool Datastructures::remove_road(TownID town1, TownID town2)
     return true;
 }
 
-std::vector<TownID> Datastructures::least_towns_route(TownID /*fromid*/, TownID /*toid*/)
+std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid)
 {
-    throw NotImplemented("road_cycle_route()");
+    if(towns.find(fromid) == towns.end() or towns.find(toid) == towns.end()){
+        return {NO_TOWNID};
+    }
+
+
+
+    std::vector<TownID> route_found = {};
+    std::list<TownID> q;
+
+    towns.at(fromid)->visited = 1;
+    q.push_back(fromid);
+
+    while(!q.empty()){
+
+
+
+        TownID u = q.front();
+
+
+        //dequb
+        std::cerr<<std::endl;
+        std::cerr << u <<std::endl;
+        for(auto const& t : towns.at(u)->pi){
+
+            std::cerr << t << "->";
+        }
+        std::cerr<<std::endl;
+        //dequb
+
+        if(u == toid){
+            route_found = towns.at(u)->pi;
+            route_found.push_back(toid);
+            break;
+        }
+
+
+        q.pop_front();
+
+        for(auto const& road : towns.at(u)->roads_){
+            Town* v = towns.at(road);
+            if(v->visited == 0){
+                v->visited = 1;
+                v->d = towns.at(u)->d +1;
+
+                v->pi = towns.at(u)->pi;
+                v->pi.push_back(u);
+
+                q.push_back(v->id_);
+            }
+        }
+        towns.at(u)->visited = 2;
+    }
+
+    // Reseting everything
+    for (auto const& town : towns){
+        town.second->d = 0;
+        town.second->visited = 0;
+        town.second->pi = {};
+
+    }
+
+    return route_found;
 }
 
 std::vector<TownID> Datastructures::road_cycle_route(TownID /*startid*/)
