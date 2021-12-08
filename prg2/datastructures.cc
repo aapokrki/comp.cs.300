@@ -582,10 +582,10 @@ bool Datastructures::remove_road(TownID town1, TownID town2)
 
     // Implemented unordered_set instead of vector just because of this function
     // remove if it was shit
-    if(t1.find(town2) == t2.end() or t2.find(town1) == t1.end()){
+//    if(t1.find(town2) == t2.end() or t2.find(town1) == t1.end()){
 
-        return false;
-    }
+//        return false;
+//    }
 
     t1.erase(town2);
     t2.erase(town1);
@@ -601,8 +601,6 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
         return {NO_TOWNID};
     }
 
-
-
     std::vector<TownID> route_found = {};
     std::list<TownID> q;
 
@@ -616,16 +614,6 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
         //.front for queue type
         TownID u = q.front();
 
-        //dequb
-        std::cerr<<std::endl;
-        std::cerr << u <<std::endl;
-        for(auto const& t : towns.at(u)->pi){
-
-            std::cerr << t << "->";
-        }
-        std::cerr<<std::endl;
-        //dequb
-
         if(u == toid){
             route_found = towns.at(u)->pi;
             route_found.push_back(toid);
@@ -636,17 +624,18 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
         //.front for queue type
         q.pop_front();
 
+
         for(auto const& road : towns.at(u)->roads_){
             Town* v = towns.at(road);
             if(v->visited == 0){
                 v->visited = 1;
-                v->d = towns.at(u)->d +1;
 
+                v->pi.reserve(towns.at(u)->pi.size() + 1);
                 v->pi = towns.at(u)->pi;
                 v->pi.push_back(u);
 
-
                 q.push_back(v->id_);
+
             }
         }
         towns.at(u)->visited = 2;
@@ -654,7 +643,6 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
 
     // Reseting everything
     for (auto const& town : towns){
-        town.second->d = 0;
         town.second->visited = 0;
         town.second->pi = {};
 
