@@ -518,15 +518,15 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
         TownID u = q.back();
 
 
-        //dequb
-        std::cerr<<std::endl;
-        std::cerr << u <<std::endl;
-        for(auto const& t : towns.at(u)->pi){
+//        //dequb
+//        std::cerr<<std::endl;
+//        std::cerr << u <<std::endl;
+//        for(auto const& t : towns.at(u)->pi){
 
-            std::cerr << t << "->";
-        }
-        std::cerr<<std::endl;
-        //dequb
+//            std::cerr << t << "->";
+//        }
+//        std::cerr<<std::endl;
+//        //dequb
 
 
 
@@ -545,8 +545,8 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
             Town* v = towns.at(road);
             if(v->visited == 0){
                 v->visited = 1;
-                v->d = towns.at(u)->d +1;
 
+                v->pi.reserve(towns.at(u)->pi.size() + 1);
                 v->pi = towns.at(u)->pi;
                 v->pi.push_back(u);
 
@@ -558,7 +558,6 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 
     // Reseting everything
     for (auto const& town : towns){
-        town.second->d = 0;
         town.second->visited = 0;
         town.second->pi = {};
 
@@ -597,25 +596,34 @@ bool Datastructures::remove_road(TownID town1, TownID town2)
 // Basically the same as any_route, but q acts as a literal queue. first in first out
 std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid)
 {
-    if(towns.find(fromid) == towns.end() or towns.find(toid) == towns.end()){
+
+    auto town_pair_from = towns.find(fromid);
+    auto town_pair_to = towns.find(toid);
+
+
+    if(town_pair_from == towns.end() or town_pair_to == towns.end()){
         return {NO_TOWNID};
     }
 
     std::vector<TownID> route_found = {};
-    std::list<TownID> q;
+    std::list<Town*> q;
 
     towns.at(fromid)->visited = 1;
-    q.push_back(fromid);
+    q.push_back(town_pair_from->second);
 
     while(!q.empty()){
 
 
         //.back for stack type
         //.front for queue type
-        TownID u = q.front();
+        Town* u = q.front();
 
-        if(u == toid){
-            route_found = towns.at(u)->pi;
+        if(u == town_pair_to->second){
+
+
+            route_found.reserve(u->pi.size() + 1);
+
+            route_found = u->pi;
             route_found.push_back(toid);
             break;
         }
@@ -625,24 +633,24 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
         q.pop_front();
 
 
-        for(auto const& road : towns.at(u)->roads_){
+        for(auto const& road : u->roads_){
             Town* v = towns.at(road);
             if(v->visited == 0){
                 v->visited = 1;
 
-                v->pi.reserve(towns.at(u)->pi.size() + 1);
-                v->pi = towns.at(u)->pi;
-                v->pi.push_back(u);
+                v->pi.reserve(u->pi.size() + 1);
+                v->pi = u->pi;
+                v->pi.push_back(u->id_);
 
-                q.push_back(v->id_);
+                q.push_back(v);
 
             }
         }
-        towns.at(u)->visited = 2;
+        u->visited = 2;
     }
 
     // Reseting everything
-    for (auto const& town : towns){
+    for (std::pair<TownID,Town*> town : towns){
         town.second->visited = 0;
         town.second->pi = {};
 
@@ -667,7 +675,7 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
     towns.at(startid)->visited = 1;
     q.push_back(startid);
 
-    while(!q.empty() or !loop_found){
+    while(!q.empty() and !loop_found){
 
 
         //.back for stack type
@@ -683,7 +691,8 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
             Town* v = towns.at(road);
             if(v->visited == 0){
                 v->visited = 1;
-                v->d = towns.at(u)->d +1;
+
+                v->pi.reserve(towns.at(u)->pi.size() + 1);
 
                 v->pi = towns.at(u)->pi;
                 v->pi.push_back(u);
@@ -691,6 +700,7 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
                 q.push_back(v->id_);
             }else if(v->visited == 1){ //Loop found
 
+                route_found.reserve(towns.at(u)->pi.size() + 3);
                 route_found = towns.at(u)->pi;
                 route_found.push_back(u);
                 route_found.push_back(v->id_);
@@ -714,15 +724,12 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
 
     // Reseting everything
     for (auto const& town : towns){
-        town.second->d = 0;
         town.second->visited = 0;
         town.second->pi = {};
 
     }
 
     return route_found;
-
-
 
 }
 

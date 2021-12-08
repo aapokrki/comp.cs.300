@@ -248,6 +248,8 @@ private:
         std::vector<Town*> vassals_;
 
 //        std::vector<Road> roads_;
+
+        // nää Town*:ksi
         std::unordered_set<TownID> roads_;
 
         // 0 = not visited
