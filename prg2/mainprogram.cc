@@ -844,6 +844,7 @@ MainProgram::CmdResult MainProgram::cmd_road_cycle_route(std::ostream& output, M
     auto cycbeg = std::find_if(result.begin(), result.end()-1, [lasttown](auto const& id){ return id == lasttown; });
     if (cycbeg == result.end()-1)
     {
+
         output << "No cycle found in returned route!";
         return {ResultType::ROUTE, result};
     }
