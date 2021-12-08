@@ -436,15 +436,15 @@ std::vector<std::pair<TownID, TownID>> Datastructures::all_roads()
     for (const auto& town : towns_vec){
 
 //        road_network.insert(road_network.end(), town->roads_.begin(),town->roads_.end());
-        for (TownID road : town->roads_){
+        for (Town* road : town->roads_){
 
             // smaller id is first
-            if(town->id_ < road){
-                road_network_set.insert({town->id_, road});
+            if(town->id_ < road->id_){
+                road_network_set.insert({town->id_, road->id_});
 
             // if smaller id wasn't first: swap and then insert
             }else{
-                road_network_set.insert({road, town->id_});
+                road_network_set.insert({road->id_, town->id_});
             }
 
         }
@@ -459,15 +459,17 @@ bool Datastructures::add_road(TownID town1, TownID town2)
 {
     // Replace the line below with your implementation
     // Also uncomment parameters ( /* param */ -> param )
-    if (towns.find(town1) != towns.end() and towns.find(town2) != towns.end()){
+    auto const town_pair_from = towns.find(town1);
+    auto const town_pair_to = towns.find(town2);
 
-//        towns.at(town1)->roads_.push_back({town1, town2});
-//        towns.at(town2)->roads_.push_back({town2, town1});
 
-        towns.at(town1)->roads_.insert(town2);
-        towns.at(town2)->roads_.insert(town1);
+    if(town_pair_from != towns.end() and town_pair_to != towns.end()){
+
+        town_pair_from->second->roads_.insert(town_pair_to->second);
+        town_pair_to->second->roads_.insert(town_pair_from->second);
 
         return true;
+
     }
 
     return false;
@@ -479,7 +481,7 @@ std::vector<TownID> Datastructures::get_roads_from(TownID id)
     if(towns.find(id) != towns.end()){
 
         for(auto const& road : towns.at(id)->roads_){
-            straight_roads.push_back(road);
+            straight_roads.push_back(road->id_);
 
         }
         return straight_roads;
@@ -541,8 +543,7 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
         //.front for queue type
         q.pop_back();
 
-        for(auto const& road : towns.at(u)->roads_){
-            Town* v = towns.at(road);
+        for(auto const& v : towns.at(u)->roads_){
             if(v->visited == 0){
                 v->visited = 1;
 
@@ -570,8 +571,8 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 
 bool Datastructures::remove_road(TownID town1, TownID town2)
 {
-    std::unordered_set<TownID>& t1 = towns.at(town1)->roads_;
-    std::unordered_set<TownID>& t2 = towns.at(town2)->roads_;
+    std::unordered_set<Town*>& t1 = towns.at(town1)->roads_;
+    std::unordered_set<Town*>& t2 = towns.at(town2)->roads_;
 
 
     if(towns.find(town1) == towns.end() or towns.find(town2) == towns.end()){
@@ -586,8 +587,8 @@ bool Datastructures::remove_road(TownID town1, TownID town2)
 //        return false;
 //    }
 
-    t1.erase(town2);
-    t2.erase(town1);
+    t1.erase(towns.at(town2));
+    t2.erase(towns.at(town1));
 
     return true;
 }
@@ -633,8 +634,8 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
         q.pop_front();
 
 
-        for(auto const& road : u->roads_){
-            Town* v = towns.at(road);
+        for(auto const& v : u->roads_){
+
             if(v->visited == 0){
                 v->visited = 1;
 
@@ -687,8 +688,8 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
         //.front for queue type
         q.pop_back();
 
-        for(auto const& road : towns.at(u)->roads_){
-            Town* v = towns.at(road);
+        for(auto const& v : towns.at(u)->roads_){
+
             if(v->visited == 0){
                 v->visited = 1;
 
@@ -708,8 +709,8 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
                 // If the last towns, roads lead to a town that is 'black' aka handled.
                 // then that town is a possible loop point
                 for (const auto& t : v->roads_){
-                    if (towns.at(t)->visited == 2){
-                        route_found.push_back(t);
+                    if (t->visited == 2){
+                        route_found.push_back(t->id_);
                         break;
                     }
                 }

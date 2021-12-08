@@ -250,7 +250,7 @@ private:
 //        std::vector<Road> roads_;
 
         // nää Town*:ksi
-        std::unordered_set<TownID> roads_;
+        std::unordered_set<Town*> roads_;
 
         // 0 = not visited
         // 1 = visited aka grey
