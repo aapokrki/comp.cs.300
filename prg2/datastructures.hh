@@ -1,8 +1,8 @@
-// Datastructures.hh
+// Datastructures.cc
 //
-// Student name:
-// Student email:
-// Student number:
+// Student name: Aapo Kärki
+// Student email: aapo.karki@tuni.fi
+// Student number: 0503752000
 
 #ifndef DATASTRUCTURES_HH
 #define DATASTRUCTURES_HH
@@ -245,18 +245,20 @@ private:
         int tax_ = 0;
 
         Town* master_ = nullptr;
-        std::vector<Town*> vassals_;
+        std::vector<Town*> vassals_ = {};
 
 //        std::vector<Road> roads_;
 
         // nää Town*:ksi
-        std::unordered_set<Town*> roads_;
+        std::unordered_set<Town*> roads_ = {};
 
         // 0 = not visited
         // 1 = visited aka grey
         // 2 done aka black
         int visited = 0;
-        int d = 0;
+        int d = std::numeric_limits<int>::max();
+        int de = std::numeric_limits<int>::max();
+
         std::vector<TownID> pi = {};
 
     };
@@ -264,7 +266,7 @@ private:
     std::vector<Town*> towns_vec = {};
     std::unordered_map<TownID,Town*> towns = {};
 
-    std::map<int,TownID> towns_dist = {};
+    std::multimap<int,TownID> towns_dist = {};
 
     bool mastercheck(Town* vassal, Town* master);
     std::vector<TownID> get_masters(Town* town, std::vector<TownID> vec);

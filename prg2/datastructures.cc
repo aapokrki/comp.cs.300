@@ -1,8 +1,8 @@
 // Datastructures.cc
 //
-// Student name:
-// Student email:
-// Student number:
+// Student name: Aapo Kärki
+// Student email: aapo.karki@tuni.fi
+// Student number: 0503752000
 
 #include "datastructures.hh"
 
@@ -71,11 +71,13 @@ bool Datastructures::add_town(TownID id, const Name& name, Coord coord, int tax)
 
     if (towns.find(id) == towns.end()){ // O(n)
 
-        Town *town = new Town{id, name, coord, tax,{},{},{},{},{},{}};
+        Town *town = new Town{id, name, coord, tax};
 
         towns[id] = town; // O(log n)
 
-        towns_dist[dist(id,{0,0})] = id; // O(log n)
+        towns_dist.insert({dist(id,{0,0}), id}); // O(log n)
+
+//        towns_dist[dist(id,{0,0})] = id; // O(log n)
         towns_vec.push_back(town);  // O(1),
         return true;
     }else{
@@ -156,7 +158,7 @@ std::vector<TownID> Datastructures::towns_alphabetically()
 std::vector<TownID> Datastructures::towns_distance_increasing()
 {
     std::vector<TownID> towns_coord = {};
-
+    towns_coord.reserve(towns_dist.size());
     for (const auto& town : towns_dist){ // O(n)
         towns_coord.push_back(town.second);
     }
@@ -318,9 +320,13 @@ bool Datastructures::remove_town(TownID id)
 // and returns the distance as an integer
 int Datastructures::dist(TownID id, Coord c2){
 
-    int x = towns.at(id)->coord_.x;
-    int y = towns.at(id)->coord_.y;
-    int dist = sqrt(pow((x-c2.x),2)+pow((y-c2.y),2));
+//    int x = towns.at(id)->coord_.x;
+//    int y = towns.at(id)->coord_.y;
+//    int dist = sqrt(pow((x-c2.x),2)+pow((y-c2.y),2));
+
+    long long int dx = towns.at(id)->coord_.x-c2.x;
+    long long int dy = towns.at(id)->coord_.y-c2.y;
+    int dist = sqrt(dx*dx+dy*dy);
 
     return dist;
 
@@ -506,7 +512,7 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 
     std::list<Town*> q;
 
-    towns.at(fromid)->visited = 1;
+    town_pair_from->second->visited = 1;
     q.push_back(town_pair_from->second);
 
     while(!q.empty()){
@@ -591,7 +597,7 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
     std::vector<TownID> route_found = {};
     std::list<Town*> q;
 
-    towns.at(fromid)->visited = 1;
+    town_pair_from->second->visited = 1;
     q.push_back(town_pair_from->second);
 
     while(!q.empty()){
@@ -657,7 +663,7 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
     std::list<Town*> q;
     bool loop_found = false;
 
-    towns.at(startid)->visited = 1;
+    town_pair_start->second->visited = 1;
     q.push_back(town_pair_start->second);
 
     while(!q.empty() and !loop_found){
@@ -719,13 +725,88 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
     return route_found;
 
 }
-
-std::vector<TownID> Datastructures::shortest_route(TownID /*fromid*/, TownID /*toid*/)
+// A*
+std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("shortest_route()");
+    auto town_from = towns.find(fromid);
+    auto town_to = towns.find(toid);
+
+
+    if(town_from == towns.end() or town_to == towns.end()){
+        return {NO_TOWNID};
+    }
+
+
+    std::vector<TownID> route_found = {};
+    std::priority_queue<std::pair<int,Town*>> q;
+
+    town_from->second->visited = 1;
+    town_from->second->d = 0;
+    q.push({-dist(town_from->first,town_to->second->coord_),town_from->second});
+
+    while(!q.empty()){
+
+
+        //.back for stack type
+        //.front for queue type
+        Town* u = q.top().second;
+
+        if(u == town_to->second){
+
+
+            route_found.reserve(u->pi.size() + 1);
+
+            route_found = u->pi;
+            route_found.push_back(toid);
+            break;
+        }
+
+        //.back for stack type
+        //.front for queue type
+        q.pop();
+
+
+        for(auto const& v : u->roads_){
+            v->pi.reserve(u->pi.size() + 1);
+
+            // Relax
+            int uv_dist = dist(u->id_,v->coord_);
+            if(v->d > u->d + uv_dist){
+
+                v->d = u->d + uv_dist;
+                v->de = v->d + dist(v->id_,town_to->second->coord_);
+
+                v->pi = u->pi;
+                v->pi.push_back(u->id_);
+
+                if(v->visited == 1){
+                    q.push({-v->de,v});
+
+                }
+
+            }
+            if(v->visited == 0){
+                v->visited = 1;
+
+                q.push({-v->de,v});
+
+            }
+        }
+        u->visited = 2;
+    }
+
+    // Reseting everything
+    for (std::pair<TownID,Town*> town : towns){
+        town.second->visited = 0;
+        town.second->pi = {};
+        town.second->d = std::numeric_limits<int>::max();
+        town.second->de = std::numeric_limits<int>::max();
+
+    }
+
+    return route_found;
 }
+
 
 Distance Datastructures::trim_road_network()
 {
