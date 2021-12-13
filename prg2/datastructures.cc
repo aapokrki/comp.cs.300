@@ -12,7 +12,7 @@
 #include <QDebug>
 #include <cmath>
 #include <list>
-#include <queue>
+
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
 
 template <typename Type>
@@ -474,6 +474,8 @@ bool Datastructures::add_road(TownID town1, TownID town2)
         town_pair_from->second->roads_.insert(town_pair_to->second);
         town_pair_to->second->roads_.insert(town_pair_from->second);
 
+        roadnetwork.push({-dist(town1,town_pair_to->second->coord_),{town_pair_from->second,town_pair_to->second}});
+
         return true;
 
     }
@@ -742,6 +744,9 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
 
     town_from->second->visited = 1;
     town_from->second->d = 0;
+
+    // Using negative numbers as lenght, because priority queue uses largest items first.
+    // 0 > -1, so shortest lenght is at top
     q.push({-dist(town_from->first,town_to->second->coord_),town_from->second});
 
     while(!q.empty()){
@@ -807,9 +812,131 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
     return route_found;
 }
 
+void Datastructures::kruskal_change_group(std::vector<TownID> pi, int new_group){
 
+
+    for(auto const& id : pi){
+
+        Town* town = towns.at(id);
+        if(town->visited != new_group){
+
+            town->visited = new_group;
+            if(!town->pi.empty()){
+
+                kruskal_change_group(town->pi, new_group);
+            }
+        }
+
+    }
+
+}
+
+// Kruskal's algorithm. Minimum spanning forest
 Distance Datastructures::trim_road_network()
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("trim_road_network()");
+    struct Road{
+        Town* x;
+        Town* y;
+    };
+
+//    std::unordered_set<Town*, Town*> optimal_network = {};
+
+    std::unordered_set<Road*> optimal_network = {};
+    size_t i = 1;
+    while(!roadnetwork.empty()){
+//        std::cerr << roadnetwork.top().second.first->id_ << " " <<
+//                     roadnetwork.top().second.second->id_ << " (" <<
+//                     roadnetwork.top().first << ")" <<std::endl;
+
+
+        Road* road = new Road {roadnetwork.top().second.first, roadnetwork.top().second.second};
+        road->x = roadnetwork.top().second.first ;
+        road->y = roadnetwork.top().second.second;
+
+        // visited == 0 means it doesnt belong to a group.
+        if(road->x->visited == 0 || road->y->visited == 0){
+
+            optimal_network.insert({road});
+            road->x->pi.push_back(road->y->id_);
+            road->y->pi.push_back(road->x->id_);
+
+            if(road->x->visited > road->y->visited){ // joins x's group
+
+                road->y->visited = road->x->visited;
+
+            }else if (road->x->visited < road->y->visited){ // joins y's group
+
+                road->x->visited = road->y->visited;
+
+            }else{ //Boths are 0, assign new group
+                road->x->visited = i;
+                road->y->visited = i;
+            }
+
+
+
+        }else if(road->x->visited != road->y->visited){ // no 0, nor the same
+
+            optimal_network.insert({road});
+
+            // Kokeile tähän vielä if roads.size if lauseeseen. helpottaa tehokkuutta
+            if(road->x->visited > road->y->visited){
+
+                road->y->visited = road->x->visited;
+
+
+                kruskal_change_group(road->y->pi,road->x->visited);
+
+
+                road->x->pi.push_back(road->y->id_);
+                road->y->pi.push_back(road->x->id_);
+
+            }else if (road->x->visited < road->y->visited){
+
+                road->x->visited = road->y->visited;
+
+
+                kruskal_change_group(road->x->pi,road->y->visited);
+
+                road->x->pi.push_back(road->y->id_);
+                road->y->pi.push_back(road->x->id_);
+            }
+
+        }
+
+//        if(optimal_network.find(road->x) == optimal_network.end()){
+//            if(optimal_network.find(road->y) == optimal_network.end()){
+
+//                road->x->visited = i;
+//                optimal_network.insert(road);
+//            }
+
+//            if (){
+
+//            }
+
+//        }
+
+        i++;
+        roadnetwork.pop();
+
+    }
+
+    for (auto const& t : optimal_network){
+
+        std::cerr << "add_road "<< t->x->id_ << " " << t->y->id_;
+        std::cerr << std::endl;
+        delete  t;
+
+    }
+
+    for (auto const& t: towns){
+        t.second->pi = {};
+        t.second->visited = 0;
+    }
+
+
+
+    return 1;
+
 }

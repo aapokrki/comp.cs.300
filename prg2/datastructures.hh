@@ -17,6 +17,7 @@
 #include <map>
 #include <unordered_set>
 #include <set>
+#include <queue>
 // Types for IDs
 using TownID = std::string;
 using Name = std::string;
@@ -239,6 +240,7 @@ public:
 
 private:
     struct Town{
+        //Part 1
         TownID id_ = "";
         Name name_ = "";
         Coord coord_ = {};
@@ -247,9 +249,7 @@ private:
         Town* master_ = nullptr;
         std::vector<Town*> vassals_ = {};
 
-//        std::vector<Road> roads_;
-
-        // nää Town*:ksi
+        //Part 2
         std::unordered_set<Town*> roads_ = {};
 
         // 0 = not visited
@@ -263,11 +263,12 @@ private:
 
     };
 
+
+
+    //Part 1
     std::vector<Town*> towns_vec = {};
     std::unordered_map<TownID,Town*> towns = {};
-
     std::multimap<int,TownID> towns_dist = {};
-
     bool mastercheck(Town* vassal, Town* master);
     std::vector<TownID> get_masters(Town* town, std::vector<TownID> vec);
     void change_master(Town *town);
@@ -275,6 +276,9 @@ private:
     unsigned long long rec_vassal_path(const Town *town, std::vector<TownID> &current_path, std::vector<TownID> &longest_path);
     double rec_net_tax(Town *town);
 
+    //Part 2 Kruskal test
+    std::priority_queue<std::pair<int,std::pair<Town*, Town*>>> roadnetwork = {};
+    void kruskal_change_group(std::vector<TownID> pi, int new_group);
 };
 
 #endif // DATASTRUCTURES_HH
