@@ -421,17 +421,17 @@ int Datastructures::total_net_tax(TownID id)
     return NO_VALUE;
 }
 
+
 //
 // Phase 2 operations
 //
-
-
 void Datastructures::clear_roads()
 {
     // Replace the line below with your implementation
     for (auto const& town : towns){ //O(n)
-        town.second->roads_ = {};
+        town.second->roads_.clear();
     }
+    roadnetwork = {};
 }
 
 std::vector<std::pair<TownID, TownID>> Datastructures::all_roads()
@@ -834,109 +834,98 @@ void Datastructures::kruskal_change_group(std::vector<TownID> pi, int new_group)
 // Kruskal's algorithm. Minimum spanning forest
 Distance Datastructures::trim_road_network()
 {
-    struct Road{
-        Town* x;
-        Town* y;
-    };
 
-//    std::unordered_set<Town*, Town*> optimal_network = {};
+    if(roadnetwork.empty()){
+        return 0;
+    }
+    // Copying roadnetwork to a temporary element ,because we are filling with new roads during kruskal.
+    std::priority_queue<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = roadnetwork;
 
-    std::unordered_set<Road*> optimal_network = {};
+
+
+    clear_roads();
+
+    int new_distance = 0;
     size_t i = 1;
-    while(!roadnetwork.empty()){
-//        std::cerr << roadnetwork.top().second.first->id_ << " " <<
-//                     roadnetwork.top().second.second->id_ << " (" <<
-//                     roadnetwork.top().first << ")" <<std::endl;
 
+    // n(n-1)/2 is the minumun number of connections between nodes
+    while(i < towns.size()*(towns.size()-1)/2){
 
-        Road* road = new Road {roadnetwork.top().second.first, roadnetwork.top().second.second};
-        road->x = roadnetwork.top().second.first ;
-        road->y = roadnetwork.top().second.second;
+        Town* x = roadnetwork_copy.top().second.first ;
+        Town* y = roadnetwork_copy.top().second.second;
 
         // visited == 0 means it doesnt belong to a group.
-        if(road->x->visited == 0 || road->y->visited == 0){
+        if(x->visited == 0 || y->visited == 0){
 
-            optimal_network.insert({road});
-            road->x->pi.push_back(road->y->id_);
-            road->y->pi.push_back(road->x->id_);
+            //Add road and mark it
+            add_road(x->id_,y->id_);
+            new_distance += dist(x->id_,y->coord_);
 
-            if(road->x->visited > road->y->visited){ // joins x's group
+            // Keep road connections in order
+            x->pi.push_back(y->id_);
+            y->pi.push_back(x->id_);
 
-                road->y->visited = road->x->visited;
+            if(x->visited > y->visited){ // joins x's group
+                y->visited = x->visited;
 
-            }else if (road->x->visited < road->y->visited){ // joins y's group
-
-                road->x->visited = road->y->visited;
+            }else if (x->visited < y->visited){ // joins y's group
+                x->visited = y->visited;
 
             }else{ //Boths are 0, assign new group
-                road->x->visited = i;
-                road->y->visited = i;
+                x->visited = i;
+                y->visited = i;
             }
 
+        }else if(x->visited != y->visited){ // no 0, nor the same
 
-
-        }else if(road->x->visited != road->y->visited){ // no 0, nor the same
-
-            optimal_network.insert({road});
+            add_road(x->id_,y->id_);
+            new_distance += dist(x->id_,y->coord_);
 
             // Kokeile tähän vielä if roads.size if lauseeseen. helpottaa tehokkuutta
-            if(road->x->visited > road->y->visited){
+            if(x->visited > y->visited){
 
-                road->y->visited = road->x->visited;
+                y->visited = x->visited;
 
+                // Changes the whole group to a new group
+                kruskal_change_group(y->pi,x->visited);
 
-                kruskal_change_group(road->y->pi,road->x->visited);
+                x->pi.push_back(y->id_);
+                y->pi.push_back(x->id_);
 
+            }else if (x->visited < y->visited){
 
-                road->x->pi.push_back(road->y->id_);
-                road->y->pi.push_back(road->x->id_);
+                x->visited = y->visited;
 
-            }else if (road->x->visited < road->y->visited){
+                // Changes the whole group to a new group
+                kruskal_change_group(x->pi,y->visited);
 
-                road->x->visited = road->y->visited;
-
-
-                kruskal_change_group(road->x->pi,road->y->visited);
-
-                road->x->pi.push_back(road->y->id_);
-                road->y->pi.push_back(road->x->id_);
+                x->pi.push_back(y->id_);
+                y->pi.push_back(x->id_);
             }
 
         }
 
-//        if(optimal_network.find(road->x) == optimal_network.end()){
-//            if(optimal_network.find(road->y) == optimal_network.end()){
-
-//                road->x->visited = i;
-//                optimal_network.insert(road);
-//            }
-
-//            if (){
-
-//            }
-
-//        }
-
         i++;
-        roadnetwork.pop();
 
-    }
+        roadnetwork_copy.pop();
 
-    for (auto const& t : optimal_network){
 
-        std::cerr << "add_road "<< t->x->id_ << " " << t->y->id_;
-        std::cerr << std::endl;
-        delete  t;
 
     }
 
     for (auto const& t: towns){
-        t.second->pi = {};
+        t.second->pi.clear();
         t.second->visited = 0;
     }
+    roadnetwork_copy = {};
+//    if(roadnetwork_copy.empty()){
+//        std::cerr << "empty";
+//    }
 
 
+//    std::cerr << roadnetwork_copy.size() <<std::endl;
+//    std::cerr << roadnetwork.size() <<std::endl;
 
-    return 1;
+    return new_distance;
 
 }
