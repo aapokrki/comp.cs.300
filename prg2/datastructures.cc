@@ -55,11 +55,12 @@ void Datastructures::clear_all()
         for (auto& town : towns){
 
             delete town.second;
+
         }
         // resets all maps and stuff
-        towns_vec = {};
-        towns = {};
-        towns_dist = {};
+        towns_vec.clear();
+        towns.clear();
+        towns_dist.clear();
         roadnetwork = {};
     }
 }
@@ -428,7 +429,7 @@ void Datastructures::clear_roads()
 {
     // Replace the line below with your implementation
     for (auto const& town : towns){ //O(n)
-        town.second->roads_ = {};
+        town.second->roads_.clear();
     }
     roadnetwork = {};
 }
@@ -485,9 +486,10 @@ bool Datastructures::add_road(TownID town1, TownID town2)
 std::vector<TownID> Datastructures::get_roads_from(TownID id)
 {
     std::vector <TownID> straight_roads = {};
-    if(towns.find(id) != towns.end()){
+    auto const town = towns.find(id);
+    if(town != towns.end()){
 
-        for(auto const& road : towns.at(id)->roads_){
+        for(auto const& road : town->second->roads_){
             straight_roads.push_back(road->id_);
 
         }
@@ -524,6 +526,8 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
         Town* u = q.front();
 
         if(u->id_ == toid){
+
+            route_found.reserve(u->pi.size() + 1);
             route_found = u->pi;
             route_found.push_back(toid);
             break;
@@ -550,7 +554,7 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
     // Reseting everything
     for (auto const& town : towns){
         town.second->visited = 0;
-        town.second->pi = {};
+        town.second->pi.clear();
 
     }
 
@@ -608,7 +612,7 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
         //.front for queue type
         Town* u = q.front();
 
-        if(u == town_pair_to->second){
+        if(u->id_ == toid){
 
 
             route_found.reserve(u->pi.size() + 1);
@@ -642,7 +646,7 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
     // Reseting everything
     for (std::pair<TownID,Town*> town : towns){
         town.second->visited = 0;
-        town.second->pi = {};
+        town.second->pi.clear();
 
     }
 
@@ -719,7 +723,7 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
     // Reseting everything
     for (auto const& town : towns){
         town.second->visited = 0;
-        town.second->pi = {};
+        town.second->pi.clear();
 
     }
 
@@ -782,6 +786,7 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
 
                 v->pi = u->pi;
                 v->pi.push_back(u->id_);
+                u->pi.clear();
 
                 if(v->visited == 1){
                     q.push({-v->de,v});
@@ -802,7 +807,7 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
     // Reseting everything
     for (std::pair<TownID,Town*> town : towns){
         town.second->visited = 0;
-        town.second->pi = {};
+        town.second->pi.clear();
         town.second->d = std::numeric_limits<int>::max();
         town.second->de = std::numeric_limits<int>::max();
 
@@ -911,7 +916,7 @@ Distance Datastructures::trim_road_network()
     }
 
     for (auto const& t: towns){
-        t.second->pi = {};
+        t.second->pi.clear();
         t.second->visited = 0;
     }
     roadnetwork_copy = {};

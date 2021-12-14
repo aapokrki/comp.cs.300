@@ -276,7 +276,7 @@ private:
     unsigned long long rec_vassal_path(const Town *town, std::vector<TownID> &current_path, std::vector<TownID> &longest_path);
     double rec_net_tax(Town *town);
 
-    //Part 2 Kruskal test
+    //Part 2
     std::priority_queue<std::pair<int,std::pair<Town*, Town*>>> roadnetwork = {};
     void kruskal_change_group(std::vector<TownID> pi, int new_group);
 };
