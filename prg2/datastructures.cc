@@ -61,8 +61,6 @@ void Datastructures::clear_all()
         towns = {};
         towns_dist = {};
         roadnetwork = {};
-
-
     }
 }
 
