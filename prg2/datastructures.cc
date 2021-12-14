@@ -60,6 +60,7 @@ void Datastructures::clear_all()
         towns_vec = {};
         towns = {};
         towns_dist = {};
+        roadnetwork = {};
 
 
     }
@@ -429,7 +430,7 @@ void Datastructures::clear_roads()
 {
     // Replace the line below with your implementation
     for (auto const& town : towns){ //O(n)
-        town.second->roads_.clear();
+        town.second->roads_ = {};
     }
     roadnetwork = {};
 }
@@ -841,8 +842,6 @@ Distance Datastructures::trim_road_network()
     // Copying roadnetwork to a temporary element ,because we are filling with new roads during kruskal.
     std::priority_queue<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = roadnetwork;
 
-
-
     clear_roads();
 
     int new_distance = 0;
@@ -914,7 +913,7 @@ Distance Datastructures::trim_road_network()
     }
 
     for (auto const& t: towns){
-        t.second->pi.clear();
+        t.second->pi = {};
         t.second->visited = 0;
     }
     roadnetwork_copy = {};
