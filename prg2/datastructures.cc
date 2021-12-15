@@ -6,10 +6,7 @@
 
 #include "datastructures.hh"
 
-#include <iostream>
-
 #include <random>
-#include <QDebug>
 #include <cmath>
 #include <list>
 
@@ -38,7 +35,11 @@ Datastructures::Datastructures()
 
 Datastructures::~Datastructures()
 {
-    // Write any cleanup you need here
+    for (auto& town : towns){
+
+        delete town.second;
+
+    }
 }
 
 unsigned int Datastructures::town_count()
@@ -437,7 +438,7 @@ void Datastructures::clear_roads()
 std::vector<std::pair<TownID, TownID>> Datastructures::all_roads()
 {
     // Replace the line below with your implementation
-    std::set<Road> road_network_set;
+    std::set<std::pair<TownID, TownID>> road_network_set;
 
     for (const auto& town : towns_vec){
 
@@ -455,7 +456,7 @@ std::vector<std::pair<TownID, TownID>> Datastructures::all_roads()
 
         }
     }
-    std::vector<Road> road_network{road_network_set.begin(), road_network_set.end()};
+    std::vector<std::pair<TownID, TownID>> road_network{road_network_set.begin(), road_network_set.end()};
 
     return road_network;
 
@@ -474,7 +475,12 @@ bool Datastructures::add_road(TownID town1, TownID town2)
         town_pair_from->second->roads_.insert(town_pair_to->second);
         town_pair_to->second->roads_.insert(town_pair_from->second);
 
-        roadnetwork.push({-dist(town1,town_pair_to->second->coord_),{town_pair_from->second,town_pair_to->second}});
+        if(town1 > town2){
+            roadnetwork.push({-dist(town1,town_pair_to->second->coord_),{town_pair_from->second,town_pair_to->second}});
+        }else{
+            roadnetwork.push({-dist(town1,town_pair_to->second->coord_),{town_pair_to->second,town_pair_from->second}});
+        }
+
 
         return true;
 
@@ -545,9 +551,13 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
                 v->pi = u->pi;
                 v->pi.push_back(u->id_);
 
+
+
                 q.push_back(v);
             }
         }
+
+
         u->visited = 2;
     }
 
@@ -561,7 +571,7 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
     return route_found;
 }
 
-
+// Ongelma !!! roadnetworkista ei poisteta tietä
 bool Datastructures::remove_road(TownID town1, TownID town2)
 {
     std::unordered_set<Town*>& t1 = towns.at(town1)->roads_;
@@ -572,6 +582,19 @@ bool Datastructures::remove_road(TownID town1, TownID town2)
 
         return false;
     }
+    t1.erase(towns.at(town2));
+    t2.erase(towns.at(town1));
+
+    if(town1 > town2){
+        roadnetwork.remove({-dist(town1, towns.at(town2)->coord_),{towns.at(town1),towns.at(town2)}});
+    }else{
+        roadnetwork.remove({-dist(town1, towns.at(town2)->coord_),{towns.at(town2),towns.at(town1)}});
+    }
+
+
+
+    return true;
+
 
     // Implemented unordered_set instead of vector just because of this function
     // remove if it was shit
@@ -579,11 +602,6 @@ bool Datastructures::remove_road(TownID town1, TownID town2)
 
 //        return false;
 //    }
-
-    t1.erase(towns.at(town2));
-    t2.erase(towns.at(town1));
-
-    return true;
 }
 
 
@@ -640,6 +658,7 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
 
             }
         }
+
         u->visited = 2;
     }
 
@@ -786,7 +805,8 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
 
                 v->pi = u->pi;
                 v->pi.push_back(u->id_);
-                u->pi.clear();
+
+
 
                 if(v->visited == 1){
                     q.push({-v->de,v});
@@ -842,8 +862,18 @@ Distance Datastructures::trim_road_network()
     if(roadnetwork.empty()){
         return 0;
     }
+
+
+
+
+
     // Copying roadnetwork to a temporary element ,because we are filling with new roads during kruskal.
     std::priority_queue<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = roadnetwork;
+
+//    while(!roadnetwork.empty()){
+//        std::cerr << roadnetwork.top().second.first->id_ << " " << roadnetwork.top().second.second->id_ << " (" << -roadnetwork.top().first << ")" << std::endl;
+//        roadnetwork.pop();
+//    }
 
     clear_roads();
 
