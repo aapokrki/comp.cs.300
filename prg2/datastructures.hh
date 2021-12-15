@@ -273,7 +273,9 @@ private:
         // 0 = not visited
         // 1 = visited aka grey
         // 2 done aka black
-        int visited = 0;
+        // n > 2, just different groups. Used in trim_road_network kruskal
+        int group = 0;
+
         int d = std::numeric_limits<int>::max();
         int de = std::numeric_limits<int>::max();
 

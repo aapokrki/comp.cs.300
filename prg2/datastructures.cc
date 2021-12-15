@@ -284,11 +284,12 @@ void Datastructures::change_master(Town* town)
 
 bool Datastructures::remove_town(TownID id)
 {
+    auto town = towns.find(id);
 
-    if (towns.find(id) != towns.end()){ // Worst: O(n), Average: O(1)
+    if (town != towns.end()){ // Worst: O(n), Average: O(1)
 
         // Change master connections
-        change_master(towns.at(id)); // O(n)
+        change_master(town->second); // O(n)
 
         // remove from towns_vec
         auto const to_rm = std::remove(towns_vec.begin(),
@@ -302,6 +303,19 @@ bool Datastructures::remove_town(TownID id)
                 towns_dist.erase(pair.first); // Worst: O(n) Average: O(1)
             }
         }
+
+        // Part2 removing roads
+        for (auto const& t : town->second->roads_){
+            t->roads_.erase(town->second);
+
+            if(town->second->id_ > t->id_){
+                roadnetwork.erase({dist(t->id_, town->second->coord_),{town->second,t}});
+            }else{
+                roadnetwork.erase({dist(t->id_, town->second->coord_),{t,town->second}});
+            }
+        }
+        town->second->roads_.clear();
+
 
         delete towns.at(id);
 
@@ -521,7 +535,7 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 
     std::list<Town*> q;
 
-    town_pair_from->second->visited = 1;
+    town_pair_from->second->group = 1;
     q.push_back(town_pair_from->second);
 
     while(!q.empty()){
@@ -544,8 +558,10 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
         q.pop_front();
 
         for(auto const& v : u->roads_){
-            if(v->visited == 0){
-                v->visited = 1;
+            if(v->group == 0){
+
+                // Town is grey now = visited
+                v->group = 1;
 
                 v->pi.reserve(u->pi.size() + 1);
                 v->pi = u->pi;
@@ -557,13 +573,13 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
             }
         }
 
-
-        u->visited = 2;
+        // Town is black now = done
+        u->group = 2;
     }
 
     // Reseting everything
-    for (auto const& town : towns){
-        town.second->visited = 0;
+    for (std::pair<TownID,Town*> town : towns){
+        town.second->group = 0;
         town.second->pi.clear();
 
     }
@@ -571,7 +587,6 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
     return route_found;
 }
 
-// Ongelma !!! roadnetworkista ei poisteta tietä
 bool Datastructures::remove_road(TownID town1, TownID town2)
 {
     std::unordered_set<Town*>& t1 = towns.at(town1)->roads_;
@@ -607,7 +622,7 @@ bool Datastructures::remove_road(TownID town1, TownID town2)
 }
 
 
-// Basically the same as any_route, but q acts as a literal queue. first in first out
+// Basically the same as any_route
 std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid)
 {
 
@@ -622,7 +637,7 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
     std::vector<TownID> route_found = {};
     std::list<Town*> q;
 
-    town_pair_from->second->visited = 1;
+    town_pair_from->second->group = 1;
     q.push_back(town_pair_from->second);
 
     while(!q.empty()){
@@ -649,8 +664,8 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
 
         for(auto const& v : u->roads_){
 
-            if(v->visited == 0){
-                v->visited = 1;
+            if(v->group == 0){
+                v->group = 1;
 
                 v->pi.reserve(u->pi.size() + 1);
                 v->pi = u->pi;
@@ -661,12 +676,12 @@ std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid
             }
         }
 
-        u->visited = 2;
+        u->group = 2;
     }
 
     // Reseting everything
     for (std::pair<TownID,Town*> town : towns){
-        town.second->visited = 0;
+        town.second->group = 0;
         town.second->pi.clear();
 
     }
@@ -689,7 +704,7 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
     std::list<Town*> q;
     bool loop_found = false;
 
-    town_pair_start->second->visited = 1;
+    town_pair_start->second->group = 1;
     q.push_back(town_pair_start->second);
 
     while(!q.empty() and !loop_found){
@@ -706,8 +721,8 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
 
         for(auto const& v : u->roads_){
 
-            if(v->visited == 0){
-                v->visited = 1;
+            if(v->group == 0){
+                v->group = 1;
 
                 v->pi.reserve(u->pi.size() + 1);
 
@@ -716,7 +731,7 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
 
                 q.push_back(v);
 
-            }else if(v->visited == 1){ //Loop found
+            }else if(v->group == 1){ //Loop found
 
                 route_found.reserve(u->pi.size() + 3);
                 route_found = u->pi;
@@ -726,24 +741,24 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
                 // If the last towns, roads lead to a town that is 'black' aka handled.
                 // then that town is a possible loop point
                 for (const auto& t : v->roads_){
-                    if (t->visited == 2){
+                    if (t->group == 2){
                         route_found.push_back(t->id_);
                         break;
                     }
                 }
 
 
-
+                // loop found. break while-loop also
                 loop_found = true;
                 break;
             }
         }
-        u->visited = 2;
+        u->group = 2;
     }
 
     // Reseting everything
     for (auto const& town : towns){
-        town.second->visited = 0;
+        town.second->group = 0;
         town.second->pi.clear();
 
     }
@@ -751,7 +766,7 @@ std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
     return route_found;
 
 }
-// A*
+// A* implementation
 std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
 {
     auto town_from = towns.find(fromid);
@@ -766,7 +781,7 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
     std::vector<TownID> route_found = {};
     std::priority_queue<std::pair<int,Town*>> q;
 
-    town_from->second->visited = 1;
+    town_from->second->group = 1;
     town_from->second->d = 0;
 
     // Using negative numbers as lenght, because priority queue uses largest items first.
@@ -775,30 +790,23 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
 
     while(!q.empty()){
 
-
-        //.back for stack type
-        //.front for queue type
         Town* u = q.top().second;
 
-        if(u == town_to->second){
-
-
+        // toid found. return route.
+        if(u->id_ == toid){
             route_found.reserve(u->pi.size() + 1);
-
             route_found = u->pi;
             route_found.push_back(toid);
             break;
         }
 
-        //.back for stack type
-        //.front for queue type
         q.pop();
-
 
         for(auto const& v : u->roads_){
             v->pi.reserve(u->pi.size() + 1);
 
-            // Relax
+            // Relax -operation
+            // changes optimal distance etc.
             int uv_dist = dist(u->id_,v->coord_);
             if(v->d > u->d + uv_dist){
 
@@ -808,28 +816,25 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
                 v->pi = u->pi;
                 v->pi.push_back(u->id_);
 
-
-
-                if(v->visited == 1){
-                    q.push({-v->de,v});
+                if(v->group == 1){
+                    q.push({-v->de,v}); //O(logn)
 
                 }
 
             }
-            if(v->visited == 0){
-                v->visited = 1;
+            if(v->group == 0){
+                v->group = 1;
 
-                q.push({-v->de,v});
-
+                q.push({-v->de,v}); //O(logn)
             }
         }
-        u->visited = 2;
+        u->group = 2;
     }
 
-    // Reseting everything
-    for (std::pair<TownID,Town*> town : towns){
-        town.second->visited = 0;
-        town.second->pi.clear();
+    // Reseting everything O(n+k)
+    for (std::pair<TownID,Town*> town : towns){ //O(n), n=towns
+        town.second->group = 0;
+        town.second->pi.clear(); //O(k), k=roads
         town.second->d = std::numeric_limits<int>::max();
         town.second->de = std::numeric_limits<int>::max();
 
@@ -840,133 +845,116 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
 
 void Datastructures::kruskal_change_group(std::vector<TownID> pi, int new_group){
 
-
     for(auto const& id : pi){
 
         Town* town = towns.at(id);
-        if(town->visited != new_group){
+        if(town->group != new_group){
 
-            town->visited = new_group;
+            town->group = new_group;
             if(!town->pi.empty()){
-
                 kruskal_change_group(town->pi, new_group);
             }
         }
-
     }
-
 }
 
 // Kruskal's algorithm. Minimum spanning forest
 Distance Datastructures::trim_road_network()
 {
-
+    // Obvious cases when there is no need to run the algorithm
     if(roadnetwork.empty()){
         return 0;
+    }else if (roadnetwork.size() == 1){
+        return roadnetwork.begin()->first;
     }
 
 
+    // Copying roadnetwork to a temporary element, because we are filling it with new roads during kruskal.
+    std::set<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = roadnetwork;
 
-
-
-    // Copying roadnetwork to a temporary element ,because we are filling with new roads during kruskal.
-//    std::priority_queue<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = roadnetwork;
-      std::set<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = roadnetwork;
-
-//    while(!roadnetwork.empty()){
-//        std::cerr << roadnetwork.top().second.first->id_ << " " << roadnetwork.top().second.second->id_ << " (" << -roadnetwork.top().first << ")" << std::endl;
-//        roadnetwork.pop();
-//    }
-
+    // Clearing all roads and roadnetwork.
     clear_roads();
 
     int new_distance = 0;
     size_t i = 1;
 
-    // n(n-1)/2 is the minumun number of connections between nodes
-
 
     for(auto const & road : roadnetwork_copy){
 
+        // n(n-1)/2 is the minimun number of connections between all 'n' nodes
         if(i > towns.size()*(towns.size()-1)/2){
-//            std::cerr <<"wtf";
             break;
         }
 
-//        std::cerr << road.second.first->id_ << " " << road.second.second->id_ << " (" << road.first << ")" << std::endl;;
-
+        // town x and town y
         Town* x = road.second.first;
         Town* y = road.second.second;
 
-        // visited == 0 means it doesnt belong to a group.
-        if(x->visited == 0 || y->visited == 0){
+        // group == 0 means it doesnt belong to a group.
+        if(x->group == 0 || y->group == 0){
 
-            //Add road and mark it
+            //Add road and add distance
             add_road(x->id_,y->id_);
             new_distance += dist(x->id_,y->coord_);
 
-            // Keep road connections in order
+            // Keep road connections in order for when changing group.
             x->pi.push_back(y->id_);
             y->pi.push_back(x->id_);
 
-            if(x->visited > y->visited){ // joins x's group
-                y->visited = x->visited;
+            // The one in group 0 joins to existing group
+            if(x->group != 0){
+                y->group = x->group;
 
-            }else if (x->visited < y->visited){ // joins y's group
-                x->visited = y->visited;
+
+            }else if (y->group != 0){
+                x->group = y->group;
 
             }else{ //Boths are 0, assign new group
-                x->visited = i;
-                y->visited = i;
+                x->group = i;
+                y->group = i;
             }
 
-        }else if(x->visited != y->visited){ // no 0, nor the same
+        }else if(x->group != y->group){ // not 0, nor the same
 
             add_road(x->id_,y->id_);
             new_distance += dist(x->id_,y->coord_);
 
-            // Kokeile tähän vielä if roads.size if lauseeseen. helpottaa tehokkuutta
-            if(x->visited > y->visited){
+            // Comparing x->pi and y->pi vector sizes and converting the smaller
+            // one would be faster if pi held the whole route.
+            // But since that slows down the kruskal_change function so much
+            // It's easier and faster to just change the newer group to an older one
+            // an older group most likely has more towns in it than the newer one.
+            if(x->group > y->group){
 
-                y->visited = x->visited;
+                y->group = x->group;
 
-                // Changes the whole group to a new group
-                kruskal_change_group(y->pi,x->visited);
+                // Converts the newer group to an older group
+                kruskal_change_group(y->pi,x->group);
 
+                // Keep road connections in order for when changing group.
                 x->pi.push_back(y->id_);
                 y->pi.push_back(x->id_);
 
-            }else if (x->visited < y->visited){
+            }else if (x->group < y->group){
 
-                x->visited = y->visited;
+                x->group = y->group;
 
-                // Changes the whole group to a new group
-                kruskal_change_group(x->pi,y->visited);
+                // Converts the newer group to an older group
+                kruskal_change_group(x->pi,y->group);
 
+                // Keep road connections in order for when changing group.
                 x->pi.push_back(y->id_);
                 y->pi.push_back(x->id_);
             }
-
         }
 
         i++;
     }
 
-
-
-
     for (auto const& t: towns){
         t.second->pi.clear();
-        t.second->visited = 0;
+        t.second->group = 0;
     }
-    roadnetwork_copy = {};
-//    if(roadnetwork_copy.empty()){
-//        std::cerr << "empty";
-//    }
-
-
-//    std::cerr << roadnetwork_copy.size() <<std::endl;
-//    std::cerr << roadnetwork.size() <<std::endl;
 
     return new_distance;
 
