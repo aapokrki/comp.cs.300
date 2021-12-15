@@ -295,7 +295,7 @@ private:
     double rec_net_tax(Town *town);
 
     //Part 2
-    custom_priority_queue<std::pair<int,std::pair<Town*, Town*>>> roadnetwork = {};
+    std::set<std::pair<int,std::pair<Town*, Town*>>> roadnetwork = {};
     void kruskal_change_group(std::vector<TownID> pi, int new_group);
 };
 

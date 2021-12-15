@@ -476,9 +476,9 @@ bool Datastructures::add_road(TownID town1, TownID town2)
         town_pair_to->second->roads_.insert(town_pair_from->second);
 
         if(town1 > town2){
-            roadnetwork.push({-dist(town1,town_pair_to->second->coord_),{town_pair_from->second,town_pair_to->second}});
+            roadnetwork.insert({dist(town1,town_pair_to->second->coord_),{town_pair_from->second,town_pair_to->second}});
         }else{
-            roadnetwork.push({-dist(town1,town_pair_to->second->coord_),{town_pair_to->second,town_pair_from->second}});
+            roadnetwork.insert({dist(town1,town_pair_to->second->coord_),{town_pair_to->second,town_pair_from->second}});
         }
 
 
@@ -585,10 +585,12 @@ bool Datastructures::remove_road(TownID town1, TownID town2)
     t1.erase(towns.at(town2));
     t2.erase(towns.at(town1));
 
+
+
     if(town1 > town2){
-        roadnetwork.remove({-dist(town1, towns.at(town2)->coord_),{towns.at(town1),towns.at(town2)}});
+        roadnetwork.erase({dist(town1, towns.at(town2)->coord_),{towns.at(town1),towns.at(town2)}});
     }else{
-        roadnetwork.remove({-dist(town1, towns.at(town2)->coord_),{towns.at(town2),towns.at(town1)}});
+        roadnetwork.erase({dist(town1, towns.at(town2)->coord_),{towns.at(town2),towns.at(town1)}});
     }
 
 
@@ -868,7 +870,8 @@ Distance Datastructures::trim_road_network()
 
 
     // Copying roadnetwork to a temporary element ,because we are filling with new roads during kruskal.
-    std::priority_queue<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = roadnetwork;
+//    std::priority_queue<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = roadnetwork;
+      std::set<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = roadnetwork;
 
 //    while(!roadnetwork.empty()){
 //        std::cerr << roadnetwork.top().second.first->id_ << " " << roadnetwork.top().second.second->id_ << " (" << -roadnetwork.top().first << ")" << std::endl;
@@ -881,10 +884,19 @@ Distance Datastructures::trim_road_network()
     size_t i = 1;
 
     // n(n-1)/2 is the minumun number of connections between nodes
-    while(i < towns.size()*(towns.size()-1)/2){
 
-        Town* x = roadnetwork_copy.top().second.first ;
-        Town* y = roadnetwork_copy.top().second.second;
+
+    for(auto const & road : roadnetwork_copy){
+
+        if(i > towns.size()*(towns.size()-1)/2){
+//            std::cerr <<"wtf";
+            break;
+        }
+
+//        std::cerr << road.second.first->id_ << " " << road.second.second->id_ << " (" << road.first << ")" << std::endl;;
+
+        Town* x = road.second.first;
+        Town* y = road.second.second;
 
         // visited == 0 means it doesnt belong to a group.
         if(x->visited == 0 || y->visited == 0){
@@ -938,12 +950,10 @@ Distance Datastructures::trim_road_network()
         }
 
         i++;
-
-        roadnetwork_copy.pop();
-
-
-
     }
+
+
+
 
     for (auto const& t: towns){
         t.second->pi.clear();
