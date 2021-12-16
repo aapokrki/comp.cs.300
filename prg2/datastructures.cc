@@ -893,26 +893,9 @@ Distance Datastructures::trim_road_network()
         return roadnetwork.begin()->first;
     }
 
-    // Iterating a vector is a bit faster than set.
-    std::vector<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = {};
-    roadnetwork_copy.reserve(roadnetwork.size());
-    std::set<std::pair<int,std::pair<Town*, Town*>>>::iterator set_it = roadnetwork.begin();
-
     // Copying roadnetwork to a temporary element, because we are filling it with new roads during kruskal.
-    // set erasing with iterator is constant, compared to logarithmic erasing by value.
-    // Doing it all in the same loop is faster than two separate linear operations
-    // Only slightly faster. The difference is barely noticeable in perftests
-    while (set_it != roadnetwork.end()){ // O(n)
-        roadnetwork_copy.push_back(*set_it);
-        roadnetwork.erase(set_it); // O(1), since erasing by iterator
-
-        // Clearing all road connections
-        set_it->second.first->roads_.clear(); // O(k)
-        set_it->second.second->roads_.clear(); // O(k)
-
-
-        set_it++;
-    }
+    std::set<std::pair<int,std::pair<Town*, Town*>>> roadnetwork_copy = roadnetwork;
+    clear_roads();
 
     int new_distance = 0;
     size_t i = 1;
@@ -953,6 +936,7 @@ Distance Datastructures::trim_road_network()
 
         }else if(x->group != y->group){ // not 0, nor the same
 
+            // add road and distance
             add_road(x->id_,y->id_); // worst O(n+log(n)), average O(log(n))
             new_distance += dist(x->id_,y->coord_);
 
