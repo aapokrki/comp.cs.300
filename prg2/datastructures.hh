@@ -3,6 +3,7 @@
 // Student name: Aapo Kärki
 // Student email: aapo.karki@tuni.fi
 // Student number: 0503752000
+// More detailed information can be found in the readme.pdf file. (Finnish)
 
 #ifndef DATASTRUCTURES_HH
 #define DATASTRUCTURES_HH
@@ -214,46 +215,58 @@ public:
 
     // Phase 2 operations
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: Average: O(n*k), Worst: O(n^2)
+    // Short rationale for estimate: if every town had a road to every other town
+    // the performance would be O(n^2), but generally it just is O(n*k) where n = towns and k = roads
     void clear_roads();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: Average O(n*k*log(n)), Worst case O(n^2*log(n))
+
+    // Short rationale for estimate:if every town had a road to every other town
+    // the performance would be O(n^2*log(n)), but generally it just is O(n*k*log(n). n = towns, k = roads
     std::vector<std::pair<TownID, TownID>> all_roads();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: Average O(log(n)), Worst O(n+log(n))
+    // Short rationale for estimate: inserting to an unordered set is in average O(1), worst = O(n)
+    //                               Inserting to a set is O(log(n))
     bool add_road(TownID town1, TownID town2);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(k)
+    // Short rationale for estimate: Just linearry getting the amount of connected towns
+    //                               id has. Pushing back to vector = O(1)
     std::vector<TownID> get_roads_from(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n+k)
+    // Short rationale for estimate: towns in q and their neighbour towns until toid found
+    //                               O(n+k) is based from a course video
     std::vector<TownID> any_route(TownID fromid, TownID toid);
 
     // Non-compulsory phase 2 operations
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: Average O(log(n)), worst O(4*n + log(n))
+    // Short rationale for estimate: no loops, most operations constant in average, worst case linear
+    //                               erasin from set is O(log(n))
     bool remove_road(TownID town1, TownID town2);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n+k)
+    // Short rationale for estimate: towns in q and their neighbour towns until toid found
+    //                               O(n+k) is based from a course video
     std::vector<TownID> least_towns_route(TownID fromid, TownID toid);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n+k)
+    // Short rationale for estimate: towns in q and their neighbour towns until loop found
+    //                               O(n+k) is based from a course video
     std::vector<TownID> road_cycle_route(TownID startid);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O((n+k)*log(n))
+    // Short rationale for estimate: (n+k) has the same principle as any_route and least_towns_route
+    //                               log(n) is added because adding to priority_gueue is logarithmic
     std::vector<TownID> shortest_route(TownID fromid, TownID toid);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: start O(n*r*log(n)), closer to end O(n^2*log(n)).
+    // Short rationale for estimate: r = towns in old group that need to be changed
+    //                              this changes and becomes more like n at the end
+    //                              n loops and add_road in function is in average O(log(n))
     Distance trim_road_network();
 
 private:
@@ -282,8 +295,6 @@ private:
         std::vector<TownID> pi = {};
 
     };
-
-
 
     //Part 1
     std::vector<Town*> towns_vec = {};
