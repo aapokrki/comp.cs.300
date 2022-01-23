@@ -21,5 +21,6 @@ More information about design choices of functions are in /README_prg2.pdf
 The main focus on this course was time complexities of the functions and different algorithms. 
 The following pictures show the performances of the functions and algorithms when N = Amount of towns changes.
 
-![Part 1](prg2/Part 1_General functions and vassalpath algorithms' performances.PNG)
-![Part 2](prg2/Part 2_Roadnetwork algorithms' performances.PNG)
+![Screenshot](../prg2/Part 1_General functions and vassalpath algorithms' performances.PNG)
+
+![Screenshot](../prg2/Part 2_Roadnetwork algorithms' performances.PNG)
