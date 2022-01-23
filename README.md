@@ -16,11 +16,11 @@ A*-shortest route,
 Kruskal's minimum spanning forest 
 and more in part 1.
 
-More information about design choices of functions are in /README_prg2.pdf
+More information about design choices of functions are in ![here](README_prg2.pdf)
 
 The main focus on this course was time complexities of the functions and different algorithms. 
 The following pictures show the performances of the functions and algorithms when N = Amount of towns changes.
 
-![Screenshot](Part1.png)
+![Part 1](/Part1.PNG)
 
-![Screenshot](Part2.png)
+![Part 2](/Part2.PNG)
