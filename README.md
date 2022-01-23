@@ -21,6 +21,10 @@ More information about design choices of functions are in ![here](README_prg2.pd
 The main focus on this course was time complexities of the functions and different algorithms. 
 The following pictures show the performances of the functions and algorithms when N = Amount of towns changes.
 
+
 ![Part 1](/Part1.PNG)
+
+
+PART 2
 
 ![Part 2](/Part2.PNG)
